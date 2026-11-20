@@ -35,7 +35,9 @@ HH_Y, MM_Y = 62, 132
 WD_Y = 6  # weekday 44x20 top
 DATE_Y0, DATE_Y1 = 28, 52
 STEPS_Y0, STEPS_Y1 = 234, 260
-BATT_X, BATT_Y = 31, 266  # below steps, hidden unless low
+BATT_W, BATT_H = 22, 22
+BATT_X = (W - BATT_W) // 2
+BATT_Y = 266
 
 
 def build(name, tcol, wdcol, datecol, stepcol):
@@ -52,20 +54,18 @@ def build(name, tcol, wdcol, datecol, stepcol):
     for i in range(10):
         glyph(str(i), 20, 26, 24, stepcol).save(out / f"{i + 22}.png")
     for idx in range(6):
-        img = Image.new("RGBA", (64, 20), (0, 0, 0, 0))
+        img = Image.new("RGBA", (BATT_W, BATT_H), (0, 0, 0, 0))
         if idx < 2:
             d = ImageDraw.Draw(img)
             col = RED if idx == 0 else ORANGE
-            d.rectangle([0, 0, 54, 15], outline=col, width=2)
-            d.rectangle([55, 4, 61, 11], fill=col)
-            fw = 8 if idx == 0 else 20
-            d.rectangle([3, 3, 3 + fw, 12], fill=col)
-            fnt = F(11)
+            d.rectangle([0, 0, BATT_W - 1, BATT_H - 1], outline=col, width=1)
+            fnt = F(9)
             txt = "LOW"
             bb = d.textbbox((0, 0), txt, font=fnt)
-            tw = bb[2] - bb[0]
-            tx = 3 + fw + 4
-            d.text((tx - bb[0], 2 - bb[1]), txt, font=fnt, fill=RED)
+            tw, th = bb[2] - bb[0], bb[3] - bb[1]
+            tx = (BATT_W - tw) // 2 - bb[0]
+            ty = (BATT_H - th) // 2 - bb[1]
+            d.text((tx, ty), txt, font=fnt, fill=col)
         img.save(out / f"{32 + idx}.png")
     for i, dd in enumerate(["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]):
         glyph(dd, 44, 20, 18, wdcol).save(out / f"{38 + i}.png")
@@ -144,20 +144,18 @@ def build_duo(name, hhcol, mmcol, wdcol, datecol, stepcol):
     for i in range(10):
         glyph(str(i), 20, 26, 24, stepcol).save(out / f"{i + 22}.png")
     for idx in range(6):
-        img = Image.new("RGBA", (64, 20), (0, 0, 0, 0))
+        img = Image.new("RGBA", (BATT_W, BATT_H), (0, 0, 0, 0))
         if idx < 2:
             d = ImageDraw.Draw(img)
             col = RED if idx == 0 else ORANGE
-            d.rectangle([0, 0, 54, 15], outline=col, width=2)
-            d.rectangle([55, 4, 61, 11], fill=col)
-            fw = 8 if idx == 0 else 20
-            d.rectangle([3, 3, 3 + fw, 12], fill=col)
-            fnt = F(11)
+            d.rectangle([0, 0, BATT_W - 1, BATT_H - 1], outline=col, width=1)
+            fnt = F(9)
             txt = "LOW"
             bb = d.textbbox((0, 0), txt, font=fnt)
-            tw = bb[2] - bb[0]
-            tx = 3 + fw + 4
-            d.text((tx - bb[0], 2 - bb[1]), txt, font=fnt, fill=RED)
+            tw, th = bb[2] - bb[0], bb[3] - bb[1]
+            tx = (BATT_W - tw) // 2 - bb[0]
+            ty = (BATT_H - th) // 2 - bb[1]
+            d.text((tx, ty), txt, font=fnt, fill=col)
         img.save(out / f"{32 + idx}.png")
     for i, dd in enumerate(["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]):
         glyph(dd, 44, 20, 18, wdcol).save(out / f"{38 + i}.png")

@@ -663,20 +663,20 @@ def build(d):
             continue
 
     # ---- battery low-only icon ----
-    BATT_W, BATT_H = 64, 20
+    BATT_W, BATT_H = 22, 22
+    batt_x = (W - BATT_W) // 2
     for idx in range(6):
         img = Image.new("RGBA", (BATT_W, BATT_H), (0, 0, 0, 0))
         if idx < 2:
-            # clean square box, LOW centered, no battery shape
             dd = ImageDraw.Draw(img)
             col = RED if idx == 0 else ORANGE
-            dd.rectangle([0, 0, BATT_W - 1, BATT_H - 1], outline=col, width=2)
-            fnt = font_for(gf, 11)
+            dd.rectangle([0, 0, BATT_W - 1, BATT_H - 1], outline=col, width=1)
+            fnt = font_for(gf, 9)
             txt = "LOW"
             bb = dd.textbbox((0, 0), txt, font=fnt)
             tw, th = bb[2] - bb[0], bb[3] - bb[1]
             dd.text(
-                ((BATT_W - tw) / 2 - bb[0], (BATT_H - th) / 2 - bb[1]),
+                ((BATT_W - tw) // 2 - bb[0], (BATT_H - th) // 2 - bb[1]),
                 txt,
                 font=fnt,
                 fill=col,
@@ -684,7 +684,7 @@ def build(d):
         img.save(out / f"{alloc()}.png")
     batt_start = nxt[0] - 6
     batt_js = {
-        "BatteryIcon": {"X": 31, "Y": battY, "ImageIndex": batt_start, "ImagesCount": 6}
+        "BatteryIcon": {"X": batt_x, "Y": battY, "ImageIndex": batt_start, "ImagesCount": 6}
     }
     if batt_txt_js:
         batt_js["BatteryText"] = batt_txt_js
@@ -784,9 +784,9 @@ def build(d):
     meta["bounds"] = {
         "timeBottom": timeBottom,
         "lowBottom": lowBottom,
-        "battBottom": battY + 20,
+        "battBottom": battY + BATT_H,
     }
-    meta["overflowPx"] = max(0, timeBottom - H, lowBottom - H, (battY + 20) - H)
+    meta["overflowPx"] = max(0, timeBottom - H, lowBottom - H, (battY + BATT_H) - H)
     (out / "meta.json").write_text(json.dumps(meta))
     print(f"clean-night-18-custom {len(list(out.glob('*.png')))} images")
     return js, meta
