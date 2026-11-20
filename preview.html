@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mi Band 5 face designer</title>
+<style>
+:root{
+--page:#0E0F17;--panel:#141624;--ink:#c0caf5;--dim:#8a90b8;--line:#3a3f66;--accent:#7dcfff;
+--input:#0B0C14;--shadow:0 18px 50px rgba(0,0,0,.55);--good:#9ece6a;--bad:#f7768e;--volt:#FAFF00;
+}
+html[data-theme="light"]{--page:#EDE9DB;--panel:#FFFFFF;--ink:#1A1B26;--dim:#57534E;--line:#8f8871;--accent:#1D4ED8;--input:#F6F3E8;--shadow:0 18px 40px rgba(26,27,38,.25)}
+*{box-sizing:border-box}
+html{background:var(--page)}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;margin:0;color:var(--ink);font-size:14px;line-height:1.5}
+header.top{position:sticky;top:0;z-index:20;background:var(--page);border-bottom:1.5px solid var(--line)}
+header.top .in{max-width:1560px;margin:0 auto;padding:12px 18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+header.top h1{font-size:17px;margin:0;text-transform:uppercase;letter-spacing:.05em}
+header.top h1 span{color:var(--accent)}
+header.top p{font-size:11px;opacity:.7;margin:2px 0 0}
+.sp{flex:1}
+button{font:inherit;cursor:pointer}
+.btn{font-size:12px;padding:9px 15px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);border-radius:0}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--volt);border-color:#10111A;color:#10111A;font-weight:bold}
+.btn:disabled,.row input:disabled,.row select:disabled{opacity:.35}
+.wrap{max-width:1560px;margin:0 auto;padding:18px;display:grid;grid-template-columns:300px minmax(300px,1fr) minmax(300px,1fr);gap:20px;align-items:stretch}
+@media(max-width:1100px){.wrap{grid-template-columns:300px 1fr}.controls-wide{grid-column:1/-1}.controls-wide .cols{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}}
+@media(max-width:700px){.wrap{grid-template-columns:1fr}.controls-wide .cols{grid-template-columns:1fr}}
+.stagewrap{position:sticky;top:76px;align-self:start}
+.bezel{background:#000;border-radius:0;padding:12px;box-shadow:var(--shadow)}
+.band{width:252px;height:588px;background:#000;overflow:hidden;border-radius:0}
+#bandExact{width:252px;height:588px;image-rendering:pixelated;image-rendering:crisp-edges;display:block}
+.panel{border:1.5px solid var(--line);background:var(--panel);padding:12px 14px;margin-bottom:14px;border-radius:0}
+.panel>h2{font-size:11px;margin:0;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);display:flex;gap:8px;align-items:center}
+.panel>h2 .n{display:inline-flex;width:20px;height:20px;border:1.5px solid var(--accent);align-items:center;justify-content:center;font-size:10px}
+.panel>p.hint{font-size:11px;opacity:.7;margin:6px 0 4px;line-height:1.6}
+.cat{border:1px solid var(--line);margin:8px 0 2px;background:var(--input)}
+.cat>summary{font-size:11px;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;padding:8px 10px;list-style:none;display:flex;gap:8px;align-items:center}
+.cat>summary::-webkit-details-marker{display:none}
+.cat>summary::before{content:"+";font-weight:bold}
+.cat[open]>summary::before{content:"-"}
+.cat>summary .count{margin-left:auto;font-size:10px;opacity:.6}
+.cat .catbody{padding:2px 10px 8px}
+.grp{border-top:1px dashed var(--line);padding:8px 0}
+.grp h3{font-size:11px;margin:0 0 4px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.row{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:12px;min-width:0}
+.row label{flex:1;font-size:12.5px;min-width:0}
+.row output{font-size:11px;min-width:40px;text-align:right;opacity:.8}
+.row input[type=text],.row input[type=number]{width:76px;background:var(--input);color:var(--ink);border:1px solid var(--line);font:inherit;padding:5px 7px;font-size:13px;border-radius:0}
+.row input[type=color]{width:42px;height:28px;border:1px solid var(--line);background:none;padding:0;cursor:pointer;flex:none;border-radius:0}
+.row input[type=checkbox]{-webkit-appearance:none;appearance:none;width:16px;height:16px;flex:none;margin:0;cursor:pointer;border:1.5px solid var(--ink);background:var(--input);border-radius:0;position:relative}
+.row input[type=checkbox]:checked{background:var(--accent);box-shadow:inset 0 0 0 2px var(--panel)}
+.chips input[type=checkbox]{-webkit-appearance:none;appearance:none;width:15px;height:15px;border:1.5px solid var(--ink);background:transparent;cursor:pointer;flex:none;margin:0;border-radius:0}
+.chips input[type=checkbox]:checked{background:var(--accent);box-shadow:inset 0 0 0 2px var(--panel)}
+.row input[type=range]{-webkit-appearance:none;appearance:none;flex:1;min-width:0;height:22px;background:transparent;cursor:pointer}
+.row input[type=range]::-webkit-slider-runnable-track{height:6px;background:var(--line);border-radius:0}
+.row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;margin-top:-5px;background:var(--accent);border:1.5px solid var(--ink);border-radius:0}
+.row input[type=range]::-moz-range-track{height:6px;background:var(--line);border-radius:0}
+.row input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--accent);border:1.5px solid var(--ink);border-radius:0}
+.hex{font-size:10px;opacity:.65;min-width:58px;text-transform:uppercase}
+.row input[type=range]{flex:1;min-width:0}
+.row select{background:var(--input);color:var(--ink);border:1px solid var(--line);font:inherit;font-size:12.5px;max-width:170px;padding:4px;border-radius:0}
+.row input[type=checkbox]{width:16px;height:16px;flex:none}
+.row input:focus,.row select:focus{outline:2px solid var(--accent);outline-offset:1px}
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.presets button{font-size:11.5px;padding:7px 11px;background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:0}
+.presets button:hover{border-color:var(--accent);color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips label{display:flex;align-items:center;gap:6px;font-size:12px;border:1px solid var(--line);padding:6px 10px;cursor:pointer;border-radius:0}
+details.adv{border-top:1px dashed var(--line);padding:6px 0}
+details.adv summary{font-size:11px;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;color:var(--dim)}
+#status{font-size:11px;min-height:18px}
+#status.ok{color:var(--good)}#status.err{color:var(--bad)}
+footer{border-top:1.5px solid var(--line)}
+footer .in{max-width:1560px;margin:0 auto;padding:12px 18px;font-size:11px;opacity:.7;line-height:1.7}
+code{background:var(--input);padding:1px 5px}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+<div><h1>Mi Band 5 <span>designer</span></h1><p>Every control rebuilds the .bin. The preview matches the band display.</p></div>
+<div class="sp"></div>
+<button class="btn" id="btn-theme">☀ Light theme</button>
+</div></header>
+
+<div class="wrap">
+<div class="stagewrap"><div class="bezel"><div class="band"><canvas id="bandExact" width="126" height="294"></canvas></div></div></div>
+
+<div class="controls">
+<div class="panel"><h2><span class="n">1</span> Face + values</h2>
+<div class="row"><label>Face</label><select id="v-face"><option value="clean-night-18-custom">18 - custom (editable)</option><option value="clean-night-10-blue">10-blue</option><option value="clean-night-11-mono">11-mono</option><option value="clean-night-12-volt">12-volt</option><option value="clean-night-13-aqua">13-aqua</option><option value="clean-night-14-ember">14-ember</option><option value="clean-night-15-duo-frost">15-frost</option><option value="clean-night-16-duo-sky">16-sky</option><option value="clean-night-17-duo-deep">17-deep</option></select></div>
+<div class="row"><label>Time</label><input type="text" id="v-hh" value="12" style="width:44px"><span>:</span><input type="text" id="v-mm" value="45" style="width:44px"><button class="btn" id="btn-now" style="padding:5px 10px">Now</button></div>
+<div class="row"><label>Date + weekday</label><input type="text" id="v-date" value="11/17" style="width:64px"><select id="v-day"><option>MON</option><option>TUE</option><option selected>WED</option><option>THU</option><option>FRI</option><option>SAT</option><option>SUN</option></select></div>
+<div class="row"><label>Steps</label><input type="number" id="v-steps" value="8432" min="0"></div>
+<div class="row"><label>Battery <output id="battval">12</output>%</label><input type="range" id="v-batt" min="0" max="100" value="12"></div>
+<details class="adv"><summary>More values</summary>
+<div class="row"><label>Seconds + delim</label><input type="text" id="v-ss" value="30" style="width:52px"><input type="text" id="v-delim" value=":" style="width:36px"></div>
+<div class="row"><label>Pulse / PAI</label><input type="number" id="v-pulse" value="72" min="0" style="width:60px"><input type="number" id="v-pai" value="86" min="0" style="width:60px"></div>
+<div class="row"><label>Temp / hi / lo</label><input type="text" id="v-temp" value="21" style="width:48px"><input type="text" id="v-hi" value="24" style="width:48px"><input type="text" id="v-lo" value="17" style="width:48px"></div>
+<div class="row"><label>Humidity / Wind / UV</label><input type="text" id="v-hum" value="55" style="width:44px"><input type="text" id="v-wind" value="3" style="width:52px"><input type="text" id="v-uv" value="3" style="width:40px"></div>
+<div class="row"><label>Alarm / on</label><input type="text" id="v-alarm" value="07:00" style="width:64px"><input type="checkbox" id="v-alarmOn" checked></div>
+<div class="row"><label>BT / Lock / DND</label><input type="checkbox" id="v-bt" checked><input type="checkbox" id="v-lock"><input type="checkbox" id="v-dnd"></div>
+</details>
+<p class="hint">Values redraw instantly without rebuilding. Battery icon is hidden at 30% and above, orange from 10% to 29%, and red below 10%. Only checked elements are packed into the .bin.</p>
+</div>
+
+<div class="panel"><h2><span class="n">2</span> Bulk text style</h2>
+<div class="row"><label>Everywhere font</label><select id="d-font"><option>Departure Mono</option><option>JetBrains Mono</option><option>ui-monospace, monospace</option><option>system-ui, sans-serif</option></select></div>
+<div class="row"><label>Background</label><input type="color" id="d-bg" value="#24283b"><span class="hex" id="h-bg">#24283B</span></div>
+<div class="row"><label>Time layout</label><select id="d-layout"><option value="stack">HH over MM</option><option value="side">HH:MM side by side</option></select></div>
+<div class="row"><label>HH-MM gap <output id="o-gap">-25</output>px</label><input type="range" id="d-gap" min="-40" max="40" value="-25"></div>
+<div class="row"><label>Top order</label><select id="d-top"><option value="wd-dt">weekday, date</option><option value="dt-wd">date, weekday</option></select></div>
+<div class="presets" id="presets"></div>
+<p class="hint">Side layout auto-fits time to the 126px band width. Sizes below are band pixels.</p>
+</div>
+
+<div class="panel"><h2><span class="n">3</span> Step goal math</h2>
+<div class="row"><label>Steps goal</label><input type="number" id="v-goal" value="10000" min="1"></div>
+<div class="row"><label>Stride cm</label><input type="number" id="v-stride" value="75" min="20" max="150"></div>
+<div class="row"><label>kcal / step</label><input type="text" id="v-kcal" value="0.04"></div>
+<div class="row"><label>Distance unit</label><select id="v-unit"><option value="km">km</option><option value="mi">mi</option></select></div>
+<p class="hint" id="calc"></p>
+</div>
+</div>
+
+<div class="controls controls-wide"><div class="cols">
+<div>
+<div class="panel"><h2><span class="n">4</span> Elements</h2><p class="hint">Tick to pack it into the .bin. Color + size per element; font defaults to bulk.</p><div class="chips" id="chips" style="margin-bottom:6px"></div><div id="groups"></div></div>
+</div>
+<div>
+<div class="panel"><h2><span class="n">5</span> Positions + build</h2>
+<div class="row"><label>Top Y <output id="o-topY">4</output></label><input type="range" id="d-topY" min="0" max="80" value="4"></div>
+<div class="row"><label>Time Y <output id="o-timeY">54</output></label><input type="range" id="d-timeY" min="20" max="140" value="54"></div>
+<div class="row"><label>Low Y <output id="o-lowY">244</output></label><input type="range" id="d-lowY" min="120" max="270" value="244"></div>
+<div class="row"><label>Battery Y <output id="o-battY">270</output></label><input type="range" id="d-battY" min="200" max="274" value="270"></div>
+<div class="row"><button class="btn primary" id="btn-rebuild" style="flex:1">Rebuild .bin</button></div>
+<div id="status"></div>
+<div class="row"><a id="bin-link" href="clean-night-18-custom.bin">Download clean-night-18-custom.bin</a></div>
+<p class="hint">Start the server with <code>python3 server.py 8903</code>, then open <code>http://127.0.0.1:8903/</code>. Edits rebuild automatically when the server runs. Without the server, values still preview but rebuild is disabled.</p>
+</div>
+</div>
+</div></div>
+</div>
+
+<footer><div class="in">The preview draws generated face PNGs at identical positions to the band display. Design a custom face here, then install the .bin with Gadgetbridge or Notify for Mi Band.</div></footer>
+
+<script src="faces.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const FONTS=["Departure Mono","JetBrains Mono","ui-monospace, monospace","system-ui, sans-serif"];
+const G=[
+{id:"hh",label:"Hour",el:"Hour digits"},
+{id:"mm",label:"Minute",el:"Minute digits"},
+{id:"ss",label:"Seconds",el:"Seconds",off:true},
+{id:"wd",label:"Weekday",el:"Weekday"},
+{id:"dt",label:"Date",el:"Date"},
+{id:"st",label:"Steps",el:"Steps"},
+{id:"di",label:"Distance",el:"Distance (auto)",off:true},
+{id:"ca",label:"Calories",el:"Calories (auto)",off:true},
+{id:"pu",label:"Pulse",el:"Pulse",off:true},
+{id:"pai",label:"PAI",el:"PAI",off:true},
+{id:"tmp",label:"Temp",el:"Temperature",off:true},
+{id:"hil",label:"Hi/Lo",el:"Hi / Lo",off:true},
+{id:"hum",label:"Humidity",el:"Humidity",off:true},
+{id:"wind",label:"Wind",el:"Wind",off:true},
+{id:"uv",label:"UV",el:"UV index",off:true},
+{id:"al",label:"Alarm",el:"Alarm time",off:true},
+{id:"bp",label:"Battery %",el:"Battery percent",off:true},
+{id:"sn",label:"Status",el:"BT / lock / DND",off:true}];
+const byId={};G.forEach(o=>byId[o.id]=o);
+const CATS=[{name:"Time",ids:["hh","mm","ss"],open:true},
+{name:"Top: weekday and date",ids:["wd","dt"],open:true},
+{name:"Activity: steps and health",ids:["st","di","ca","pu","pai"],open:false,goalbar:true},
+{name:"Weather",ids:["tmp","hil","hum","wind","uv"],open:false},
+{name:"Info: alarm, battery, and status",ids:["al","bp","sn"],open:false}];
+const gdiv=$("groups"),chips=$("chips");
+function groupCard(o){
+const d=document.createElement("div");d.className="grp";d.id=`grp-${o.id}`;
+d.innerHTML=`<h3>${o.el}</h3>
+<div class="row"><label>Color</label><input type="color" id="c-${o.id}" value="#7aa2f7"><span class="hex" id="h-${o.id}">#7AA2F7</span></div>
+<div class="row"><label>Font</label><select id="f-${o.id}"><option value="">Bulk font</option>${FONTS.map(f=>`<option>${f}</option>`).join("")}</select></div>
+<div class="row"><label>Size <output><span id="o-${o.id}">22</span>px</output></label><input type="range" id="z-${o.id}" min="10" max="110" value="22"></div>
+<div class="row"><label>Spacing <output><span id="q-${o.id}">0</span>px</output></label><input type="range" id="p-${o.id}" min="-10" max="20" value="0"></div>`;
+return d}
+CATS.forEach((cat,ci)=>{
+const det=document.createElement("details");det.className="cat";if(cat.open)det.open=true;
+const sum=document.createElement("summary");sum.innerHTML=`<span>${cat.name}</span><span class="count" id="count-${ci}"></span>`;det.appendChild(sum);
+const body=document.createElement("div");body.className="catbody";
+cat.ids.forEach(id=>{const o=byId[id];
+const c=document.createElement("label");c.innerHTML=`<input type="checkbox" id="s-${id}" ${o.off?"":"checked"}>${o.label}`;chips.appendChild(c);
+body.appendChild(groupCard(o))});
+if(cat.goalbar){const r=document.createElement("div");r.className="row";r.innerHTML=`<label>Goal bar</label><input type="checkbox" id="s-bar" title="Steps progress line under the steps number">`;body.appendChild(r)}
+det.appendChild(body);gdiv.appendChild(det)});
+const PRESETS={"10-blue":{bg:"#24283b",hh:"#c0caf5",mm:"#c0caf5",wd:"#7aa2f7",dt:"#7aa2f7",st:"#7aa2f7"},
+"11-mono":{bg:"#000000",hh:"#ffffff",mm:"#ffffff",wd:"#ffffff",dt:"#ffffff",st:"#ffffff"},
+"12-volt":{bg:"#24283b",hh:"#FAFF00",mm:"#FAFF00",wd:"#7aa2f7",dt:"#7aa2f7",st:"#9ece6a"},
+"13-aqua":{bg:"#24283b",hh:"#7dcfff",mm:"#7dcfff",wd:"#565f89",dt:"#7dcfff",st:"#7dcfff"},
+"14-ember":{bg:"#24283b",hh:"#ff9e64",mm:"#ff9e64",wd:"#e0af68",dt:"#e0af68",st:"#9ece6a"},
+"15-frost":{bg:"#24283b",hh:"#ffffff",mm:"#7aa2f7",wd:"#7aa2f7",dt:"#7aa2f7",st:"#7aa2f7"},
+"16-sky":{bg:"#24283b",hh:"#c0caf5",mm:"#7dcfff",wd:"#7aa2f7",dt:"#7aa2f7",st:"#7aa2f7"},
+"17-deep":{bg:"#24283b",hh:"#7aa2f7",mm:"#c0caf5",wd:"#7aa2f7",dt:"#7aa2f7",st:"#7aa2f7"}};
+const holder=$("presets");
+Object.keys(PRESETS).forEach(n=>{const b=document.createElement("button");b.textContent=n;b.onclick=()=>{const p=PRESETS[n];$("d-bg").value=p.bg;["hh","mm","wd","dt","st"].forEach(k=>{$("c-"+k).value=p[k]});syncLabels();scheduleRebuild()};holder.appendChild(b)});
+/* ---------- exact renderer: draws the built .bin PNGs ---------- */
+const exactCv=$("bandExact"),ectx=exactCv.getContext("2d");
+let BUILD=0;const exactCache={};
+function imgURL(dir,id){return dir+"/"+id+".png"+(BUILD?("?v="+BUILD):"")}
+function exactImg(dir,id){const k=dir+"/"+id+"#"+BUILD;if(!exactCache[k]){exactCache[k]=new Promise(res=>{const im=new Image();im.onload=()=>res(im);im.onerror=()=>res(null);im.src=imgURL(dir,id)})}return exactCache[k]}
+let exactToken=0;
+function vals(){
+const num=id=>parseFloat($(id).value)||0;
+const steps=num("v-steps"),goal=num("v-goal")||10000,stride=num("v-stride")||75,kcal=parseFloat($("v-kcal").value)||0;
+const km=steps*stride/100000,unit=$("v-unit").value;
+return {steps,goal,stride,kcal,unit,dist:unit==="mi"?km*0.621371:km,cal:steps*kcal,pct:Math.min(100,Math.round(steps/(goal||1)*100))};
+}
+async function drawNumberImageList(t,dir,box,base,spacing,str,charImgs,suffixIdx){
+const {TopLeftX,TopLeftY,BottomRightX,BottomRightY,Alignment}=box;
+const items=[];
+for(const ch of str){
+if(ch>="0"&&ch<="9")items.push({id:base+parseInt(ch,10)});
+else if(charImgs[ch]!=null)items.push({id:charImgs[ch]});
+}
+const imgs=[];for(const it of items){const im=await exactImg(dir,it.id);if(t!==exactToken)return null;imgs.push(im)}
+let suffix=null;
+if(suffixIdx!=null){suffix=await exactImg(dir,suffixIdx);if(t!==exactToken)return null}
+let tot=0;imgs.forEach(im=>{if(im)tot+=im.width});
+const nGap=imgs.length-1+(suffix?1:0);
+tot+=Math.max(0,nGap)*spacing+(suffix&&suffix?suffix.width:0);
+let x=Alignment==="Center"?Math.round((TopLeftX+BottomRightX+1)/2-tot/2):TopLeftX;
+const yMid=Math.round((TopLeftY+BottomRightY+1)/2);
+const drawOne=(im)=>{if(!im)return;ectx.drawImage(im,x,yMid-Math.round(im.height/2));x+=im.width+spacing};
+for(const im of imgs)drawOne(im);
+if(suffix)drawOne(suffix);
+return true;
+}
+async function drawExact(){
+const t=++exactToken;
+const face=$("v-face").value||"clean-night-18-custom";
+const F=(typeof FACES!=="undefined"&&FACES.faces&&FACES.faces[face])?FACES.faces[face]:null;
+ectx.imageSmoothingEnabled=false;
+ectx.fillStyle="#000";ectx.fillRect(0,0,126,294);
+if(!F){ectx.fillStyle="#fff";ectx.font="10px monospace";ectx.fillText("no FACE data",8,20);return}
+const L=F.layout,V=vals();
+const bg=await exactImg(F.dir,0);if(t!==exactToken)return;if(bg)ectx.drawImage(bg,0,0);
+const pad2=s=>String(s==null?"":s).padStart(2,"0");
+const hh=pad2($("v-hh").value),mm=pad2($("v-mm").value);
+try{
+const TH=L.Time.Hours,TM=L.Time.Minutes,TS=L.Time.Seconds;
+for(let i=0;i<2;i++){const k=i===0?"Tens":"Ones";const im=await exactImg(F.dir,TH[k].ImageIndex+parseInt(hh[i],10));if(t!==exactToken)return;if(im)ectx.drawImage(im,TH[k].X,TH[k].Y)}
+for(let i=0;i<2;i++){const k=i===0?"Tens":"Ones";const im=await exactImg(F.dir,TM[k].ImageIndex+parseInt(mm[i],10));if(t!==exactToken)return;if(im)ectx.drawImage(im,TM[k].X,TM[k].Y)}
+if(TS){const ss=pad2($("v-ss").value);for(let i=0;i<2;i++){const k=i===0?"Tens":"Ones";const im=await exactImg(F.dir,TS[k].ImageIndex+parseInt(ss[i],10));if(t!==exactToken)return;if(im)ectx.drawImage(im,TS[k].X,TS[k].Y)}}
+if(L.Time.DelimiterImage){const im=await exactImg(F.dir,L.Time.DelimiterImage.ImageIndex);if(t!==exactToken)return;if(im)ectx.drawImage(im,L.Time.DelimiterImage.X,L.Time.DelimiterImage.Y)}
+}catch(e){}
+try{
+const D=L.Date;
+if(D&&D.MonthAndDayAndYear&&D.MonthAndDayAndYear.OneLine){
+const N=D.MonthAndDayAndYear.OneLine.Number,del=D.MonthAndDayAndYear.OneLine.DelimiterImageIndex;
+const ds=$("v-date").value||"11/17";const cmap={"/":del,"-":del,".":del};
+if(!await drawNumberImageList(t,F.dir,N,N.ImageIndex,N.SpacingX||0,ds,cmap))return;
+}
+if(D&&D.ENWeekDays){
+const days=["MON","TUE","WED","THU","FRI","SAT","SUN"];const di=Math.max(0,days.indexOf($("v-day").value));
+const im=await exactImg(F.dir,D.ENWeekDays.ImageIndex+di);if(t!==exactToken)return;if(im)ectx.drawImage(im,D.ENWeekDays.X,D.ENWeekDays.Y)
+}
+}catch(e){}
+const rowVal={
+st:String(V.steps),
+di:V.dist.toFixed(2),
+ca:String(Math.round(V.cal)),
+pu:String($("v-pulse").value||""),
+pai:String($("v-pai").value||""),
+tmp:String($("v-temp").value||""),
+hum:String($("v-hum").value||""),
+wind:String($("v-wind").value||""),
+uv:String($("v-uv").value||""),
+al:String($("v-alarm").value||""),
+bp:String($("v-batt").value||"")};
+try{
+const A=L.Activity||{},W=L.Weather||{};
+const jobs=[];
+if(A.Steps)jobs.push([A.Steps.Number,rowVal.st,{}]);
+if(A.Distance){const D=A.Distance;const cmap={".":D.DecimalPointImageIndex};jobs.push([D.Number,rowVal.di+"|"+($("v-unit").value==="mi"?D.MilesSuffixImageIndex:D.KmSuffixImageIndex),cmap,true])}
+if(A.Calories)jobs.push([A.Calories.Number,rowVal.ca+"|"+A.Calories.SuffixImageIndex,{},true]);
+if(A.Pulse)jobs.push([A.Pulse.Number,rowVal.pu,{}]);
+if(A.PAI)jobs.push([A.PAI.Number,rowVal.pai,{}]);
+if(W.Temperature&&W.Temperature.Current){const Tc=W.Temperature.Current;const cmap={"-":Tc.MinusImageIndex};jobs.push([Tc.Number,rowVal.tmp+"|"+Tc.SuffixImageIndex,cmap,true])}
+if(W.Humidity)jobs.push([W.Humidity.Number,rowVal.hum+"|"+W.Humidity.SuffixImageIndex,{},true]);
+if(W.Wind)jobs.push([W.Wind.Number,rowVal.wind+"|"+W.Wind.SuffixImageIndexEN,{},true]);
+if(W.UVIndex&&W.UVIndex.UV)jobs.push([W.UVIndex.UV.Number,rowVal.uv+"|"+W.UVIndex.UV.SuffixImageIndex,{},true]);
+if(L.Alarm){const cmap={":":L.Alarm.DelimiterImageIndex};jobs.push([L.Alarm.Number,rowVal.al,cmap])}
+if(L.Battery&&L.Battery.BatteryText)jobs.push([L.Battery.BatteryText.Number,rowVal.bp+"|"+L.Battery.BatteryText.SuffixImageIndex,{},true]);
+for(const [box,str,cmap,withSuffix] of jobs){
+let sfx=null,s=str;
+const pi=str.lastIndexOf("|");
+if(withSuffix&&pi>=0){s=str.slice(0,pi);sfx=parseInt(str.slice(pi+1),10)}
+if(!await drawNumberImageList(t,F.dir,box,box.ImageIndex,box.SpacingX||0,s,cmap,sfx))return;
+}
+if(W.Temperature&&W.Temperature.Today){
+const T=W.Temperature.Today.Separate;
+const hi=String($("v-hi").value||""),lo=String($("v-lo").value||"");
+if(!await drawNumberImageList(t,F.dir,T.Day.Number,T.Day.Number.ImageIndex,T.Day.Number.SpacingX||0,hi,{"-":T.Day.MinusImageIndex},T.Day.SuffixImageIndex))return;
+if(!await drawNumberImageList(t,F.dir,T.Night.Number,T.Night.Number.ImageIndex,T.Night.Number.SpacingX||0,lo,{"-":T.Night.MinusImageIndex},T.Night.SuffixImageIndex))return;
+}
+if(L.StepsProgress&&L.StepsProgress.Linear){
+const Lp=L.StepsProgress.Linear;const on=Math.round(V.pct/100*Lp.Segments.length);
+for(let i=0;i<on;i++){const im=await exactImg(F.dir,Lp.StartImageIndex+i);if(t!==exactToken)return;if(im)ectx.drawImage(im,Lp.Segments[i].X,Lp.Segments[i].Y)}
+}
+if(L.Battery&&L.Battery.Linear){
+const Lb=L.Battery.Linear;const bi=+$("v-batt").value||0;const on=Math.round(bi/100*Lb.Segments.length);
+for(let i=0;i<on;i++){const im=await exactImg(F.dir,Lb.StartImageIndex+i);if(t!==exactToken)return;if(im)ectx.drawImage(im,Lb.Segments[i].X,Lb.Segments[i].Y)}
+}
+if(L.Status){
+const onOff=async(key,val)=>{const S=L.Status[key];if(!S||!S.Coordinates)return;
+const idx=val?S.OnImageIndex:S.OffImageIndex;const im=await exactImg(F.dir,idx);if(t!==exactToken)return;if(im&&im.width>1)ectx.drawImage(im,S.Coordinates.X,S.Coordinates.Y)};
+await onOff("Bluetooth",$("v-bt").checked);await onOff("Lock",$("v-lock").checked);await onOff("DoNotDisturb",$("v-dnd").checked);
+}
+if(L.Battery&&L.Battery.BatteryIcon){
+const B=L.Battery.BatteryIcon;const bi=+$("v-batt").value||0;
+const idx=Math.min(5,Math.floor(bi/100*5+0.5));
+const im=await exactImg(F.dir,B.ImageIndex+idx);if(t!==exactToken)return;if(im)ectx.drawImage(im,B.X,B.Y)
+}
+}catch(e){}
+}
+function setStatus(msg,cls){const s=$("status");s.textContent=msg;s.className=cls||""}
+function designGroups(){
+const o={};
+G.forEach(e=>{o[e.id]={show:$("s-"+e.id).checked,color:$("c-"+e.id).value,size:+$("z-"+e.id).value,font:$("f-"+e.id).value||"global",spacing:+$("p-"+e.id).value}});
+return o;
+}
+function currentValues(){
+const v=id=>$(id).value;
+return {hh:v("v-hh"),mm:v("v-mm"),ss:v("v-ss"),date:v("v-date"),day:v("v-day"),steps:+v("v-steps")||0,goal:+v("v-goal")||10000,
+strideCm:+v("v-stride")||75,kcalPerStep:parseFloat(v("v-kcal"))||0,unit:v("v-unit"),pulse:v("v-pulse"),pai:v("v-pai"),
+temp:v("v-temp"),hi:v("v-hi"),lo:v("v-lo"),hum:v("v-hum"),wind:v("v-wind"),uv:v("v-uv"),
+alarm:v("v-alarm"),alarmOn:$("v-alarmOn").checked,bt:$("v-bt").checked,lock:$("v-lock").checked,dnd:$("v-dnd").checked,batt:+v("v-batt")||0};
+}
+function applyValues(V){
+if(!V)return;
+const set=(id,v)=>{if(v===undefined)return;const el=$(id);if(!el)return;if(el.type==="checkbox")el.checked=!!v;else el.value=v};
+set("v-hh",V.hh);set("v-mm",V.mm);set("v-ss",V.ss);set("v-date",V.date);set("v-day",V.day);
+set("v-steps",V.steps);set("v-goal",V.goal);set("v-stride",V.strideCm);set("v-kcal",V.kcalPerStep);set("v-unit",V.unit);
+set("v-pulse",V.pulse);set("v-pai",V.pai);set("v-temp",V.temp);set("v-hi",V.hi);set("v-lo",V.lo);
+set("v-hum",V.hum);set("v-wind",V.wind);set("v-uv",V.uv);set("v-alarm",V.alarm);set("v-alarmOn",V.alarmOn);
+set("v-bt",V.bt);set("v-lock",V.lock);set("v-dnd",V.dnd);set("v-batt",V.batt);
+}
+function saveValuesLocal(){try{localStorage.setItem("mb5face-values",JSON.stringify(currentValues()))}catch(e){}}
+function loadValuesLocal(){try{const raw=localStorage.getItem("mb5face-values");if(!raw)return false;applyValues(JSON.parse(raw));return true}catch(e){return false}}
+let valuesTimer=null;
+function scheduleValuesSave(){clearTimeout(valuesTimer);saveValuesLocal();valuesTimer=setTimeout(async()=>{try{await fetch("/api/values",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({values:currentValues()})})}catch(e){}},800)}
+function collectDesign(){
+const v=id=>$(id).value;
+return {bg:v("d-bg"),globalFont:v("d-font"),layout:v("d-layout"),topOrder:v("d-top"),delimiter:v("v-delim"),goalBar:$("s-bar").checked,
+rowGap:+$("d-gap").value,
+y:{top:+$("d-topY").value,time:+$("d-timeY").value,low:+$("d-lowY").value,batt:+$("d-battY").value},
+groups:designGroups(),
+values:currentValues()};
+}
+function applyDesign(d){
+if(!d)return;
+const set=(id,v)=>{if(v===undefined)return;const el=$(id);if(!el)return;if(el.type==="checkbox")el.checked=!!v;else el.value=v};
+set("d-bg",d.bg);set("d-font",d.globalFont);set("d-layout",d.layout);set("d-top",d.topOrder);set("d-gap",d.rowGap);
+if(d.y){set("d-topY",d.y.top);set("d-timeY",d.y.time);set("d-lowY",d.y.low);set("d-battY",d.y.batt)}
+if(d.groups)Object.keys(d.groups).forEach(id=>{const g=d.groups[id];if(!g)return;set("s-"+id,g.show);set("c-"+id,g.color);set("z-"+id,g.size);set("f-"+id,g.font==="global"?"":g.font);set("p-"+id,g.spacing)});
+set("s-bar",d.goalBar);
+applyValues(d.values||{});
+set("v-delim",d.delimiter);
+syncLabels();
+}
+function syncLabels(){
+$("h-bg").textContent=$("d-bg").value.toUpperCase();
+G.forEach(o=>{try{$("h-"+o.id).textContent=$("c-"+o.id).value.toUpperCase();$("o-"+o.id).textContent=$("z-"+o.id).value;$("q-"+o.id).textContent=$("p-"+o.id).value}catch(e){}});
+$("o-gap").textContent=$("d-gap").value;
+$("o-topY").textContent=$("d-topY").value;$("o-timeY").textContent=$("d-timeY").value;$("o-lowY").textContent=$("d-lowY").value;$("o-battY").textContent=$("d-battY").value;
+$("battval").textContent=$("v-batt").value;
+const V=vals();
+$("calc").textContent=`${V.dist.toFixed(2)} ${V.unit}, ${Math.round(V.cal)} kcal, ${V.pct}% of goal`;
+const custom=$("v-face").value==="clean-night-18-custom";
+document.querySelectorAll("#groups input,#groups select,.controls-wide input,.controls-wide select,#btn-rebuild").forEach(el=>{if(el.id)el.disabled=!custom});
+CATS.forEach((cat,ci)=>{try{const on=cat.ids.filter(id=>$("s-"+id).checked).length;const el=$("count-"+ci);if(el)el.textContent=on+"/"+cat.ids.length+" on"}catch(e){}});
+}
+let rebuildTimer=null;
+async function rebuild(){
+try{
+setStatus("Rebuilding...","");
+const r=await fetch("/api/build",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(collectDesign())});
+const j=await r.json();
+if(!r.ok)throw new Error(j.error||("HTTP "+r.status));
+BUILD=j.build||Date.now();
+for(const k of Object.keys(exactCache))delete exactCache[k];
+if(j.layout&&typeof FACES!=="undefined"&&FACES.faces){FACES.faces["clean-night-18-custom"].layout=j.layout;if(j.meta)FACES.faces["clean-night-18-custom"].meta=j.meta}
+$("bin-link").href="clean-night-18-custom.bin?v="+BUILD;
+let msg=j.binBytes>0?("Rebuilt .bin ("+Math.round(j.binBytes/1024)+" KB). The preview matches the band."):"Rebuilt PNGs, but .bin packaging failed: "+(j.packError||"wfjs error");
+if(j.meta&&j.meta.overflowPx>0)msg+=" Content overflows bottom by "+j.meta.overflowPx+"px. Move blocks up or decrease font sizes.";
+setStatus(msg,j.binBytes>0?"ok":"err");
+drawExact();
+}catch(e){setStatus("Rebuild failed. Verify that server.py is running. ("+e.message+")","err")}
+}
+function scheduleRebuild(){clearTimeout(rebuildTimer);rebuildTimer=setTimeout(()=>rebuild(),450)}
+["v-hh","v-mm","v-ss","v-delim","v-date","v-day","v-steps","v-batt","v-goal","v-stride","v-kcal","v-unit","v-pulse","v-pai","v-temp","v-hi","v-lo","v-hum","v-wind","v-uv","v-alarm","v-alarmOn","v-bt","v-lock","v-dnd","v-face"].forEach(id=>$(id).addEventListener("input",()=>{syncLabels();drawExact();scheduleValuesSave()}));
+["d-bg","d-font","d-layout","d-gap","d-top","d-topY","d-timeY","d-lowY","d-battY","s-bar"].forEach(id=>$(id).addEventListener("input",()=>{syncLabels();scheduleRebuild()}));
+G.forEach(o=>["s-","c-","z-","f-","p-"].forEach(pre=>{try{$(pre+o.id).addEventListener("input",()=>{syncLabels();scheduleRebuild()})}catch(e){}}));
+$("btn-rebuild").onclick=()=>rebuild();
+$("btn-now").onclick=()=>{const d=new Date(),p=n=>String(n).padStart(2,"0");$("v-hh").value=p(d.getHours());$("v-mm").value=p(d.getMinutes());drawExact()};
+$("btn-theme").onclick=()=>{const h=document.documentElement;const light=h.dataset.theme!=="light";h.dataset.theme=light?"light":"dark";$("btn-theme").textContent=light?"☾ Dark theme":"☀ Light theme";try{localStorage.setItem("mb5face-theme",light?"light":"dark")}catch(e){}};
+try{if(localStorage.getItem("mb5face-theme")==="light"){document.documentElement.dataset.theme="light";$("btn-theme").textContent="☾ Dark theme"}}catch(e){}
+fetch("/api/config").then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}).then(j=>{if(j._build)BUILD=j._build;applyDesign(j);try{localStorage.setItem("mb5face-values",JSON.stringify(j.values||{}))}catch(e){}setStatus("Server connected. Design edits rebuild automatically.","ok");drawExact()}).catch(()=>{loadValuesLocal();syncLabels();drawExact();setStatus("Server not detected. Values preview works, but rebuilding the design requires python3 server.py. Open http://127.0.0.1:8903/ in your browser.","err")});
+syncLabels();
+drawExact();
+</script>
+</body>
+</html>
