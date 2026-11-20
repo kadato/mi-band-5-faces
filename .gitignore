@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Temporary build artifacts
+.build_id
+*_packed.bin
+
+# OS files
+.DS_Store
+Thumbs.db
