@@ -6,35 +6,30 @@
 <title>Mi Band 5 face designer</title>
 <style>
 :root{
---page:#0E0F17;--panel:#141624;--ink:#c0caf5;--dim:#8a90b8;--line:#3a3f66;--accent:#7dcfff;
---input:#0B0C14;--shadow:0 18px 50px rgba(0,0,0,.55);--good:#9ece6a;--bad:#f7768e;--volt:#FAFF00;
+--page:#0E0F17;--panel:#141624;--ink:#c0caf5;--dim:#8a90b8;--line:#2e3250;--accent:#7dcfff;
+--input:#0B0C14;--shadow:0 16px 48px rgba(0,0,0,.6);--good:#9ece6a;--bad:#f7768e;--volt:#FAFF00;
 }
-html[data-theme="light"]{--page:#EDE9DB;--panel:#FFFFFF;--ink:#1A1B26;--dim:#57534E;--line:#8f8871;--accent:#1D4ED8;--input:#F6F3E8;--shadow:0 18px 40px rgba(26,27,38,.25)}
+html[data-theme="light"]{--page:#EDE9DB;--panel:#FFFFFF;--ink:#1A1B26;--dim:#57534E;--line:#8f8871;--accent:#1D4ED8;--input:#F6F3E8;--shadow:0 16px 40px rgba(26,27,38,.2)}
 *{box-sizing:border-box}
 html{background:var(--page)}
 body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;margin:0;color:var(--ink);font-size:14px;line-height:1.5}
-header.top{position:sticky;top:0;z-index:20;background:var(--page);border-bottom:1.5px solid var(--line)}
-header.top .in{max-width:1560px;margin:0 auto;padding:12px 18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
-header.top h1{font-size:17px;margin:0;text-transform:uppercase;letter-spacing:.05em}
-header.top h1 span{color:var(--accent)}
-header.top p{font-size:11px;opacity:.7;margin:2px 0 0}
-.sp{flex:1}
 button{font:inherit;cursor:pointer}
-.btn{font-size:12px;padding:9px 15px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);border-radius:0}
+.btn{font-size:12px;padding:8px 14px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);border-radius:0}
 .btn:hover{border-color:var(--accent);color:var(--accent)}
 .btn.primary{background:var(--volt);border-color:#10111A;color:#10111A;font-weight:bold}
 .btn:disabled,.row input:disabled,.row select:disabled{opacity:.35}
-.wrap{max-width:1560px;margin:0 auto;padding:18px;display:grid;grid-template-columns:300px minmax(300px,1fr) minmax(300px,1fr);gap:20px;align-items:stretch}
-@media(max-width:1100px){.wrap{grid-template-columns:300px 1fr}.controls-wide{grid-column:1/-1}.controls-wide .cols{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}}
-@media(max-width:700px){.wrap{grid-template-columns:1fr}.controls-wide .cols{grid-template-columns:1fr}}
-.stagewrap{position:sticky;top:76px;align-self:start}
-.bezel{background:#000;border-radius:0;padding:12px;box-shadow:var(--shadow)}
-.band{width:252px;height:588px;background:#000;overflow:hidden;border-radius:0}
-#bandExact{width:252px;height:588px;image-rendering:pixelated;image-rendering:crisp-edges;display:block}
-.panel{border:1.5px solid var(--line);background:var(--panel);padding:12px 14px;margin-bottom:14px;border-radius:0}
-.panel>h2{font-size:11px;margin:0;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);display:flex;gap:8px;align-items:center}
-.panel>h2 .n{display:inline-flex;width:20px;height:20px;border:1.5px solid var(--accent);align-items:center;justify-content:center;font-size:10px}
-.panel>p.hint{font-size:11px;opacity:.7;margin:6px 0 4px;line-height:1.6}
+.wrap{max-width:1600px;margin:0 auto;padding:16px 20px;display:flex;gap:20px;align-items:flex-start}
+@media(max-width:960px){.wrap{flex-direction:column;align-items:center}.stagewrap{position:relative;top:0}}
+.stagewrap{position:sticky;top:16px;align-self:start;width:252px;height:588px;flex:0 0 252px;line-height:0}
+#bandExact{width:252px;height:588px;image-rendering:pixelated;image-rendering:crisp-edges;display:block;box-shadow:var(--shadow);border:1px solid var(--line);background:#000}
+.editor-grid{flex:1;min-width:0;display:grid;grid-template-columns:repeat(3,minmax(280px,1fr));gap:16px;align-items:start}
+@media(max-width:1380px){.editor-grid{grid-template-columns:repeat(2,minmax(280px,1fr))}}
+@media(max-width:760px){.editor-grid{grid-template-columns:1fr}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{border:1.5px solid var(--line);background:var(--panel);padding:14px 16px;border-radius:0}
+.panel h2{font-size:11px;margin:0;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);display:flex;gap:8px;align-items:center}
+.panel h2 .n{display:inline-flex;width:20px;height:20px;border:1.5px solid var(--accent);align-items:center;justify-content:center;font-size:10px}
+.panel p.hint{font-size:11px;opacity:.7;margin:6px 0 4px;line-height:1.6}
 .cat{border:1px solid var(--line);margin:8px 0 2px;background:var(--input)}
 .cat>summary{font-size:11px;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;padding:8px 10px;list-style:none;display:flex;gap:8px;align-items:center}
 .cat>summary::-webkit-details-marker{display:none}
@@ -44,13 +39,15 @@ button{font:inherit;cursor:pointer}
 .cat .catbody{padding:2px 10px 8px}
 .grp{border-top:1px dashed var(--line);padding:8px 0}
 .grp h3{font-size:11px;margin:0 0 4px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
-.row{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:12px;min-width:0}
+.row{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:12px;min-width:0}
 .row label{flex:1;font-size:12.5px;min-width:0}
 .row output{font-size:11px;min-width:40px;text-align:right;opacity:.8}
 .row input[type=text],.row input[type=number]{width:76px;background:var(--input);color:var(--ink);border:1px solid var(--line);font:inherit;padding:5px 7px;font-size:13px;border-radius:0}
 .row input[type=color]{width:42px;height:28px;border:1px solid var(--line);background:none;padding:0;cursor:pointer;flex:none;border-radius:0}
 .row input[type=checkbox]{-webkit-appearance:none;appearance:none;width:16px;height:16px;flex:none;margin:0;cursor:pointer;border:1.5px solid var(--ink);background:var(--input);border-radius:0;position:relative}
 .row input[type=checkbox]:checked{background:var(--accent);box-shadow:inset 0 0 0 2px var(--panel)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips label{display:flex;align-items:center;gap:6px;font-size:12px;border:1px solid var(--line);padding:6px 10px;cursor:pointer;border-radius:0}
 .chips input[type=checkbox]{-webkit-appearance:none;appearance:none;width:15px;height:15px;border:1.5px solid var(--ink);background:transparent;cursor:pointer;flex:none;margin:0;border-radius:0}
 .chips input[type=checkbox]:checked{background:var(--accent);box-shadow:inset 0 0 0 2px var(--panel)}
 .row input[type=range]{-webkit-appearance:none;appearance:none;flex:1;min-width:0;height:22px;background:transparent;cursor:pointer}
@@ -59,38 +56,33 @@ button{font:inherit;cursor:pointer}
 .row input[type=range]::-moz-range-track{height:6px;background:var(--line);border-radius:0}
 .row input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--accent);border:1.5px solid var(--ink);border-radius:0}
 .hex{font-size:10px;opacity:.65;min-width:58px;text-transform:uppercase}
-.row input[type=range]{flex:1;min-width:0}
-.row select{background:var(--input);color:var(--ink);border:1px solid var(--line);font:inherit;font-size:12.5px;max-width:170px;padding:4px;border-radius:0}
-.row input[type=checkbox]{width:16px;height:16px;flex:none}
+.row select{background:var(--input);color:var(--ink);border:1px solid var(--line);font:inherit;font-size:12.5px;max-width:170px;padding:5px 6px;border-radius:0}
 .row input:focus,.row select:focus{outline:2px solid var(--accent);outline-offset:1px}
-.presets{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-.presets button{font-size:11.5px;padding:7px 11px;background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:0}
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.presets button{font-size:11.5px;padding:6px 10px;background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:0}
 .presets button:hover{border-color:var(--accent);color:var(--accent)}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chips label{display:flex;align-items:center;gap:6px;font-size:12px;border:1px solid var(--line);padding:6px 10px;cursor:pointer;border-radius:0}
-details.adv{border-top:1px dashed var(--line);padding:6px 0}
+details.adv{border-top:1px dashed var(--line);padding:6px 0;margin-top:6px}
 details.adv summary{font-size:11px;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;color:var(--dim)}
 #status{font-size:11px;min-height:18px}
 #status.ok{color:var(--good)}#status.err{color:var(--bad)}
-footer{border-top:1.5px solid var(--line)}
-footer .in{max-width:1560px;margin:0 auto;padding:12px 18px;font-size:11px;opacity:.7;line-height:1.7}
 code{background:var(--input);padding:1px 5px}
 a{color:var(--accent)}
 </style>
 </head>
 <body>
-<header class="top"><div class="in">
-<div><h1>Mi Band 5 <span>designer</span></h1><p>Every control rebuilds the .bin. The preview matches the band display.</p></div>
-<div class="sp"></div>
-<button class="btn" id="btn-theme">☀ Light theme</button>
-</div></header>
 
 <div class="wrap">
-<div class="stagewrap"><div class="bezel"><div class="band"><canvas id="bandExact" width="126" height="294"></canvas></div></div></div>
+<div class="stagewrap"><canvas id="bandExact" width="126" height="294"></canvas></div>
 
-<div class="controls">
-<div class="panel"><h2><span class="n">1</span> Face + values</h2>
-<div class="row"><label>Face</label><select id="v-face"><option value="clean-night-18-custom">18 - custom (editable)</option><option value="clean-night-10-blue">10-blue</option><option value="clean-night-11-mono">11-mono</option><option value="clean-night-12-volt">12-volt</option><option value="clean-night-13-aqua">13-aqua</option><option value="clean-night-14-ember">14-ember</option><option value="clean-night-15-duo-frost">15-frost</option><option value="clean-night-16-duo-sky">16-sky</option><option value="clean-night-17-duo-deep">17-deep</option></select><button class="btn" id="btn-copy-variant" style="padding:4px 8px;font-size:11px;margin-left:6px;display:none" title="Copy variant settings into custom face to edit">Edit this in custom</button></div>
+<div class="editor-grid">
+<div class="col">
+<div class="panel">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+<h2><span class="n">1</span> Face + values</h2>
+<button class="btn" id="btn-theme" style="padding:4px 9px;font-size:11px">☀ Light</button>
+</div>
+<div class="row"><label for="v-face">Face</label><select id="v-face" style="flex:1;max-width:none"><option value="clean-night-18-custom">18 - custom (editable)</option><option value="clean-night-10-blue">10-blue</option><option value="clean-night-11-mono">11-mono</option><option value="clean-night-12-volt">12-volt</option><option value="clean-night-13-aqua">13-aqua</option><option value="clean-night-14-ember">14-ember</option><option value="clean-night-15-duo-frost">15-frost</option><option value="clean-night-16-duo-sky">16-sky</option><option value="clean-night-17-duo-deep">17-deep</option></select></div>
+<div id="row-copy-variant" style="display:none;margin:6px 0 10px"><button class="btn primary" id="btn-copy-variant" style="width:100%;text-align:center;padding:7px 12px;font-size:12px">Edit this variant in custom</button></div>
 <div class="row"><label>Time</label><input type="text" id="v-hh" value="12" style="width:44px"><span>:</span><input type="text" id="v-mm" value="45" style="width:44px"><button class="btn" id="btn-now" style="padding:5px 10px">Now</button></div>
 <div class="row"><label>Date + weekday</label><input type="text" id="v-date" value="11/17" style="width:64px"><select id="v-day"><option>MON</option><option>TUE</option><option selected>WED</option><option>THU</option><option>FRI</option><option>SAT</option><option>SUN</option></select></div>
 <div class="row"><label>Steps</label><input type="number" id="v-steps" value="8432" min="0"></div>
@@ -103,17 +95,7 @@ a{color:var(--accent)}
 <div class="row"><label>Alarm / on</label><input type="text" id="v-alarm" value="07:00" style="width:64px"><input type="checkbox" id="v-alarmOn" checked></div>
 <div class="row"><label>BT / Lock / DND</label><input type="checkbox" id="v-bt" checked><input type="checkbox" id="v-lock"><input type="checkbox" id="v-dnd"></div>
 </details>
-<p class="hint">Values redraw instantly without rebuilding. Battery icon is hidden at 30% and above, orange from 10% to 29%, and red below 10%. Only checked elements are packed into the .bin.</p>
-</div>
-
-<div class="panel"><h2><span class="n">2</span> Bulk text style</h2>
-<div class="row"><label>Everywhere font</label><select id="d-font"><option>Departure Mono</option><option>JetBrains Mono</option><option>ui-monospace, monospace</option><option>system-ui, sans-serif</option></select></div>
-<div class="row"><label>Background</label><input type="color" id="d-bg" value="#24283b"><span class="hex" id="h-bg">#24283B</span></div>
-<div class="row"><label>Time layout</label><select id="d-layout"><option value="stack">HH over MM</option><option value="side">HH:MM side by side</option></select></div>
-<div class="row"><label>HH-MM gap <output id="o-gap">-25</output>px</label><input type="range" id="d-gap" min="-40" max="40" value="-25"></div>
-<div class="row"><label>Top order</label><select id="d-top"><option value="wd-dt">weekday, date</option><option value="dt-wd">date, weekday</option></select></div>
-<div class="presets" id="presets"></div>
-<p class="hint">Side layout auto-fits time to the 126px band width. Sizes below are band pixels.</p>
+<p class="hint">Values redraw instantly without rebuilding. Battery icon is hidden at 30% and above, orange from 10% to 29%, and red below 10%.</p>
 </div>
 
 <div class="panel"><h2><span class="n">3</span> Step goal math</h2>
@@ -125,26 +107,34 @@ a{color:var(--accent)}
 </div>
 </div>
 
-<div class="controls controls-wide"><div class="cols">
-<div>
-<div class="panel"><h2><span class="n">4</span> Elements</h2><p class="hint">Tick to pack it into the .bin. Color + size per element; font defaults to bulk.</p><div class="chips" id="chips" style="margin-bottom:6px"></div><div id="groups"></div></div>
+<div class="col">
+<div class="panel"><h2><span class="n">2</span> Bulk text style</h2>
+<div class="row"><label>Everywhere font</label><select id="d-font"><option>Departure Mono</option><option>JetBrains Mono</option><option>ui-monospace, monospace</option><option>system-ui, sans-serif</option></select></div>
+<div class="row"><label>Background</label><input type="color" id="d-bg" value="#24283b"><span class="hex" id="h-bg">#24283B</span></div>
+<div class="row"><label>Time layout</label><select id="d-layout"><option value="stack">HH over MM</option><option value="side">HH:MM side by side</option></select></div>
+<div class="row"><label>HH-MM gap <output id="o-gap">-25</output>px</label><input type="range" id="d-gap" min="-40" max="40" value="-25"></div>
+<div class="row"><label>Top order</label><select id="d-top"><option value="wd-dt">weekday, date</option><option value="dt-wd">date, weekday</option></select></div>
+<div class="presets" id="presets"></div>
+<p class="hint">Side layout auto-fits time to the 126px band width. Sizes below are band pixels.</p>
 </div>
-<div>
+
 <div class="panel"><h2><span class="n">5</span> Positions + build</h2>
 <div class="row"><label>Top Y <output id="o-topY">6</output></label><input type="range" id="d-topY" min="0" max="80" value="6"></div>
 <div class="row"><label>Time Y <output id="o-timeY">62</output></label><input type="range" id="d-timeY" min="20" max="140" value="62"></div>
 <div class="row"><label>Low Y <output id="o-lowY">234</output></label><input type="range" id="d-lowY" min="120" max="270" value="234"></div>
 <div class="row"><label>Battery Y <output id="o-battY">264</output></label><input type="range" id="d-battY" min="200" max="274" value="264"></div>
-<div class="row"><button class="btn primary" id="btn-rebuild" style="flex:1">Rebuild .bin</button></div>
-<div id="status"></div>
-<div class="row"><a id="bin-link" href="bin/clean-night-18-custom.bin">Download clean-night-18-custom.bin</a></div>
-<p class="hint">Start the server with <code>python3 server.py 8903</code>, then open <code>http://127.0.0.1:8903/</code>. Edits rebuild automatically when the server runs. Without the server, values still preview but rebuild is disabled.</p>
+<div class="row" style="margin-top:10px"><button class="btn primary" id="btn-rebuild" style="flex:1">Rebuild .bin</button></div>
+<div id="status" style="margin-top:6px"></div>
+<div class="row" style="margin-top:6px"><a id="bin-link" href="bin/clean-night-18-custom.bin">Download clean-night-18-custom.bin</a></div>
+<p class="hint">Edits rebuild automatically when server.py is running. Values preview works without the server.</p>
 </div>
-</div>
-</div></div>
 </div>
 
-<footer><div class="in">The preview draws generated face PNGs at identical positions to the band display. Design a custom face here, then install the .bin with Gadgetbridge or Notify for Mi Band.</div></footer>
+<div class="col">
+<div class="panel"><h2><span class="n">4</span> Elements</h2><p class="hint">Tick to pack into .bin. Color + size per element; font defaults to bulk.</p><div class="chips" id="chips" style="margin-bottom:8px"></div><div id="groups"></div></div>
+</div>
+</div>
+</div>
 
 <script src="faces.js"></script>
 <script>
@@ -422,8 +412,8 @@ $("battval").textContent=$("v-batt").value;
 const V=vals();
 $("calc").textContent=`${V.dist.toFixed(2)} ${V.unit}, ${Math.round(V.cal)} kcal, ${V.pct}% of goal`;
 const custom=$("v-face").value==="clean-night-18-custom";
-$("btn-copy-variant").style.display=custom?"none":"inline-block";
-document.querySelectorAll("#groups input,#groups select,.controls-wide input,.controls-wide select,#btn-rebuild").forEach(el=>{if(el.id)el.disabled=!custom});
+$("row-copy-variant").style.display=custom?"none":"block";
+document.querySelectorAll("#groups input,#groups select,#presets button,#d-font,#d-bg,#d-layout,#d-gap,#d-top,#d-topY,#d-timeY,#d-lowY,#d-battY,#s-bar,#btn-rebuild").forEach(el=>{el.disabled=!custom});
 CATS.forEach((cat,ci)=>{try{const on=cat.ids.filter(id=>$("s-"+id).checked).length;const el=$("count-"+ci);if(el)el.textContent=on+"/"+cat.ids.length+" on"}catch(e){}});
 }
 let rebuildTimer=null;
