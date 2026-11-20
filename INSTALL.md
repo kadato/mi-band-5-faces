@@ -29,15 +29,15 @@ iOS cannot sideload `.bin` watch face files directly over Bluetooth. To install 
 ## Switch faces on the band
 
 - Long press the band home screen or go to More, then Band display to switch between saved faces.
-- The battery icon stays hidden when the battery charge is 30% or higher.
-- The icon appears in orange between 10% and 29% charge, and turns red below 10% charge.
+- The battery icon stays hidden when the battery charge is 20% or higher.
+- The icon appears in orange between 10% and 19% charge, and turns red below 10% charge.
 - If a transfer fails, keep the band charged, keep the phone within one meter, and retry the transfer without interacting with the band display.
 
 ## Custom layout details
 
-The `bin/clean-night-18-custom.bin` build places the weekday and date at the top, followed by large stacked hour and minute digits. Steps and the low-battery indicator appear at the bottom. The battery percentage number and goal progress bar remain disabled.
+The `bin/clean-night-18-custom.bin` build places the weekday and date at the top, followed by large stacked hour and minute digits. Steps anchor the bottom curve of the capsule, and the low-battery warning badge appears in the slot between minutes and steps when battery drops below 20%.
 
 ### Screen limits and adjustments
 
-1. Time digits use 60x90 pixel boxes. The Mi Band 5 display is 126x294 pixels. Weekday, date, steps, and battery rows require approximately 90 pixels of vertical space, so hour and minute digits use 60x90 boxes to avoid vertical overflow.
-2. The hour digits start at Y=62. This offset leaves room for the date row above the time block.
+1. Time digits use 44x65 pixel boxes (Font 80). The Mi Band 5 display is 126x294 pixels, and the display blitter limits sprite areas to 3056 pixels (4096-byte line buffer limit).
+2. The hour digits start at Y=72 and minutes start at Y=150. This leaves room for the weekday and date above the time block, and steps at Y=252.
