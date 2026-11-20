@@ -5,9 +5,9 @@ from PIL import Image, ImageDraw, ImageFont
 from pathlib import Path
 import json
 
-ROOT = Path("/home/karoly/projects/mi-band-5-faces")
+ROOT = Path(__file__).resolve().parent.parent
 W, H = 126, 294
-DEP = "/home/karoly/projects/Physiquinator/Physiquinator.UI/wwwroot/fonts/DepartureMono-Regular.woff2"
+DEP = str(ROOT / "fonts" / "DepartureMono-Regular.woff2")
 
 TN = {
     "bg": "#24283b",
@@ -43,7 +43,7 @@ def glyph(ch, w, h, size, color, bg=None):
 
 
 def build(name, P):
-    out = ROOT / name
+    out = ROOT / "faces" / name
     out.mkdir(exist_ok=True)
     for p in out.glob("*.png"):
         p.unlink()

@@ -6,9 +6,9 @@ from PIL import Image, ImageDraw, ImageFont
 from pathlib import Path
 import json
 
-ROOT = Path("/home/karoly/projects/mi-band-5-faces")
+ROOT = Path(__file__).resolve().parent.parent
 W, H = 126, 294
-DEP = "/home/karoly/projects/Physiquinator/Physiquinator.UI/wwwroot/fonts/DepartureMono-Regular.woff2"
+DEP = str(ROOT / "fonts" / "DepartureMono-Regular.woff2")
 BG = "#24283b"
 FG = "#c0caf5"
 BLUE = "#7aa2f7"
@@ -133,7 +133,7 @@ def batt_low():
 
 
 def write_face(name, parts):
-    out = ROOT / name
+    out = ROOT / "faces" / name
     out.mkdir(exist_ok=True)
     base_images(out)
     js = {
@@ -158,7 +158,7 @@ write_face(
 # 05 pulse bottom instead of steps (same slot, red digits)
 def pulse_bottom_face():
     name = "clean-night-05-pulse"
-    out = ROOT / name
+    out = ROOT / "faces" / name
     out.mkdir(exist_ok=True)
     base_images(out)
     # recolor 22-31 to red for pulse
@@ -200,7 +200,7 @@ write_face(
 # 07 weekday text (ENWeekDays): top strip MON..SUN + steps bottom
 def weekday_text_face():
     name = "clean-night-07-weekday"
-    out = ROOT / name
+    out = ROOT / "faces" / name
     out.mkdir(exist_ok=True)
     base_images(out)
     days = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
@@ -223,7 +223,7 @@ weekday_text_face()
 # 08 weekday dots (WeekDaysIcons): 7 dots row top, date bottom
 def weekday_dots_face():
     name = "clean-night-08-dots"
-    out = ROOT / name
+    out = ROOT / "faces" / name
     out.mkdir(exist_ok=True)
     base_images(out)
     xs = [23 + i * 12 for i in range(7)]

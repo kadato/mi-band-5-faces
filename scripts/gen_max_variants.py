@@ -5,9 +5,9 @@ from PIL import Image, ImageDraw, ImageFont
 from pathlib import Path
 import json
 
-ROOT = Path("/home/karoly/projects/mi-band-5-faces")
+ROOT = Path(__file__).resolve().parent.parent
 W, H = 126, 294
-DEP = "/home/karoly/projects/Physiquinator/Physiquinator.UI/wwwroot/fonts/DepartureMono-Regular.woff2"
+DEP = str(ROOT / "fonts" / "DepartureMono-Regular.woff2")
 BG = "#24283b"
 DIM = "#565f89"
 RED = "#f7768e"
@@ -39,7 +39,7 @@ BATT_X, BATT_Y = 31, 266  # below steps, hidden unless low
 
 
 def build(name, tcol, wdcol, datecol, stepcol):
-    out = ROOT / name
+    out = ROOT / "faces" / name
     out.mkdir(exist_ok=True)
     for p in out.glob("*.png"):
         p.unlink()
@@ -131,7 +131,7 @@ def build(name, tcol, wdcol, datecol, stepcol):
 
 
 def build_duo(name, hhcol, mmcol, wdcol, datecol, stepcol):
-    out = ROOT / name
+    out = ROOT / "faces" / name
     out.mkdir(exist_ok=True)
     for p in out.glob("*.png"):
         p.unlink()

@@ -13,10 +13,10 @@ from PIL import Image, ImageDraw, ImageFont
 from pathlib import Path
 import json
 
-ROOT = Path("/home/karoly/projects/mi-band-5-faces")
-SPEC = json.loads((ROOT / "custom-01.json").read_text())
+ROOT = Path(__file__).resolve().parent.parent
+SPEC = json.loads((Path(__file__).resolve().parent / "custom-01.json").read_text())
 W, H = 126, 294
-DEP = "/home/karoly/projects/Physiquinator/Physiquinator.UI/wwwroot/fonts/DepartureMono-Regular.woff2"
+DEP = str(ROOT / "fonts" / "DepartureMono-Regular.woff2")
 DIM = "#565f89"
 RED = "#f7768e"
 ORANGE = "#ff9e64"
@@ -59,7 +59,7 @@ print(
 )
 
 name = "clean-night-18-custom"
-out = ROOT / name
+out = ROOT / "faces" / name
 out.mkdir(exist_ok=True)
 for p in out.glob("*.png"):
     p.unlink()

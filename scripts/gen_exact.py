@@ -5,7 +5,7 @@ The studio then draws the real .bin PNGs on canvas, pixel identical."""
 from pathlib import Path
 import json
 
-ROOT = Path("/home/karoly/projects/mi-band-5-faces")
+ROOT = Path(__file__).resolve().parent.parent
 FACES = [
     "clean-night-10-blue",
     "clean-night-11-mono",
@@ -19,7 +19,7 @@ FACES = [
 ]
 out = {"faces": {}}
 for name in FACES:
-    d = ROOT / name
+    d = ROOT / "faces" / name
     layout = json.loads((d / "watchface.json").read_text())
     ids = {0}
 
@@ -37,7 +37,7 @@ for name in FACES:
     collect(layout)
     missing = [i for i in sorted(ids) if not (d / f"{i}.png").exists()]
     out["faces"][name] = {
-        "dir": name,
+        "dir": f"faces/{name}",
         "ids": sorted(ids),
         "layout": layout,
         "gapBuilt": (

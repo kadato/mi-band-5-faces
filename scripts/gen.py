@@ -5,7 +5,7 @@ from PIL import Image, ImageDraw, ImageFont
 from pathlib import Path
 import json
 
-ROOT = Path("/home/karoly/projects/mi-band-5-faces")
+ROOT = Path(__file__).resolve().parent.parent
 W, H = 126, 294
 FONT_BOLD = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 
@@ -26,7 +26,7 @@ def text_img(char, w, h, font_size, fg=(255, 255, 255, 255), bg=(0, 0, 0, 0)):
 
 
 # ---------- FLASHLIGHT ----------
-fl = ROOT / "flashlight"
+fl = ROOT / "faces" / "flashlight"
 fl.mkdir(parents=True, exist_ok=True)
 # background full white
 Image.new("RGB", (W, H), (255, 255, 255)).save(fl / "0.png")
@@ -51,7 +51,7 @@ fl_json = {
 print(f"flashlight: {len(list(fl.glob('*.png')))} pngs")
 
 # ---------- DAILY ----------
-dy = ROOT / "daily"
+dy = ROOT / "faces" / "daily"
 dy.mkdir(parents=True, exist_ok=True)
 # 0: black background
 Image.new("RGB", (W, H), (0, 0, 0)).save(dy / "0.png")

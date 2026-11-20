@@ -5,9 +5,9 @@ from PIL import Image, ImageDraw, ImageFont
 from pathlib import Path
 import json
 
-ROOT = Path("/home/karoly/projects/mi-band-5-faces")
+ROOT = Path(__file__).resolve().parent.parent
 W, H = 126, 294
-DEP = "/home/karoly/projects/Physiquinator/Physiquinator.UI/wwwroot/fonts/DepartureMono-Regular.woff2"
+DEP = str(ROOT / "fonts" / "DepartureMono-Regular.woff2")
 
 
 def F(size):
@@ -72,7 +72,7 @@ def save_rgba(path, img):
 # ---------- 1. arcade-night ----------
 def build_arcade():
     name = "retro-arcade-night"
-    out = ROOT / name
+    out = ROOT / "faces" / name
     out.mkdir(exist_ok=True)
     for p in out.glob("*.png"):
         p.unlink()
@@ -183,7 +183,7 @@ def build_arcade():
 # ---------- 2. boss-day ----------
 def build_boss():
     name = "retro-boss-day"
-    out = ROOT / name
+    out = ROOT / "faces" / name
     out.mkdir(exist_ok=True)
     for p in out.glob("*.png"):
         p.unlink()
@@ -276,7 +276,7 @@ def build_boss():
 # ---------- 3. invader-big : max visibility ----------
 def build_invader():
     name = "retro-invader-big"
-    out = ROOT / name
+    out = ROOT / "faces" / name
     out.mkdir(exist_ok=True)
     for p in out.glob("*.png"):
         p.unlink()
@@ -319,7 +319,7 @@ def build_invader():
 # ---------- 4. dungeon-icons : battery as 5 pixel batteries, steps as number ----------
 def build_dungeon():
     name = "retro-dungeon-icons"
-    out = ROOT / name
+    out = ROOT / "faces" / name
     out.mkdir(exist_ok=True)
     for p in out.glob("*.png"):
         p.unlink()
