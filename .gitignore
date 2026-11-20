@@ -9,6 +9,7 @@ __pycache__/
 # Temporary build artifacts
 .build_id
 *_packed.bin
+bin/*_packed.bin
 
 # OS files
 .DS_Store
