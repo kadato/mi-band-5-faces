@@ -94,6 +94,7 @@ def main():
 
     demos = [
         ("demo-volt-low.png", "clean-night-12-volt", 12),
+        ("demo-volt-normal.png", "clean-night-12-volt", 85),
         ("demo-batt-low.png", "clean-night-10-blue", 12),
         ("demo-batt-critical.png", "clean-night-10-blue", 5),
         ("demo-batt-normal.png", "clean-night-10-blue", 85),

@@ -40,4 +40,4 @@ The `bin/clean-night-18-custom.bin` build places the weekday and date at the top
 ### Screen limits and adjustments
 
 1. Time digits use 60x90 pixel boxes. The Mi Band 5 display is 126x294 pixels. Weekday, date, steps, and battery rows require approximately 90 pixels of vertical space, so hour and minute digits use 60x90 boxes to avoid vertical overflow.
-2. The hour digits start at Y=54. This offset leaves room for the date row above the time block.
+2. The hour digits start at Y=62. This offset leaves room for the date row above the time block.

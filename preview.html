@@ -131,10 +131,10 @@ a{color:var(--accent)}
 </div>
 <div>
 <div class="panel"><h2><span class="n">5</span> Positions + build</h2>
-<div class="row"><label>Top Y <output id="o-topY">4</output></label><input type="range" id="d-topY" min="0" max="80" value="4"></div>
-<div class="row"><label>Time Y <output id="o-timeY">54</output></label><input type="range" id="d-timeY" min="20" max="140" value="54"></div>
-<div class="row"><label>Low Y <output id="o-lowY">244</output></label><input type="range" id="d-lowY" min="120" max="270" value="244"></div>
-<div class="row"><label>Battery Y <output id="o-battY">270</output></label><input type="range" id="d-battY" min="200" max="274" value="270"></div>
+<div class="row"><label>Top Y <output id="o-topY">6</output></label><input type="range" id="d-topY" min="0" max="80" value="6"></div>
+<div class="row"><label>Time Y <output id="o-timeY">62</output></label><input type="range" id="d-timeY" min="20" max="140" value="62"></div>
+<div class="row"><label>Low Y <output id="o-lowY">234</output></label><input type="range" id="d-lowY" min="120" max="270" value="234"></div>
+<div class="row"><label>Battery Y <output id="o-battY">264</output></label><input type="range" id="d-battY" min="200" max="274" value="264"></div>
 <div class="row"><button class="btn primary" id="btn-rebuild" style="flex:1">Rebuild .bin</button></div>
 <div id="status"></div>
 <div class="row"><a id="bin-link" href="bin/clean-night-18-custom.bin">Download clean-night-18-custom.bin</a></div>
@@ -228,9 +228,9 @@ if(suffixIdx!=null){suffix=await exactImg(dir,suffixIdx);if(t!==exactToken)retur
 let tot=0;imgs.forEach(im=>{if(im)tot+=im.width});
 const nGap=imgs.length-1+(suffix?1:0);
 tot+=Math.max(0,nGap)*spacing+(suffix&&suffix?suffix.width:0);
-let x=Alignment==="Center"?Math.round((TopLeftX+BottomRightX+1)/2-tot/2):TopLeftX;
-const yMid=Math.round((TopLeftY+BottomRightY+1)/2);
-const drawOne=(im)=>{if(!im)return;ectx.drawImage(im,x,yMid-Math.round(im.height/2));x+=im.width+spacing};
+let x=Alignment==="Center"?Math.floor((TopLeftX+BottomRightX-tot)/2):TopLeftX;
+const yMid=Math.floor((TopLeftY+BottomRightY)/2);
+const drawOne=(im)=>{if(!im)return;ectx.drawImage(im,x,yMid-Math.floor(im.height/2));x+=im.width+spacing};
 for(const im of imgs)drawOne(im);
 if(suffix)drawOne(suffix);
 return true;

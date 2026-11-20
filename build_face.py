@@ -15,7 +15,7 @@ import json
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageColor
 
 ROOT = Path(__file__).resolve().parent
 DESIGN = ROOT / "custom-design.json"
@@ -66,6 +66,35 @@ def text_img(s, size, color, fname, pad=2):
     return img
 
 
+def make_battery_icon(level):
+    img = Image.new("RGBA", (22, 22), (0, 0, 0, 0))
+    if level >= 2:
+        return img
+    hex_col = RED if level == 0 else ORANGE
+    col = ImageColor.getcolor(hex_col, "RGBA")
+    d = ImageDraw.Draw(img)
+    d.rectangle([0, 0, 21, 21], outline=col, width=1)
+    img.putpixel((0, 0), (0, 0, 0, 0))
+    img.putpixel((21, 0), (0, 0, 0, 0))
+    img.putpixel((0, 21), (0, 0, 0, 0))
+    img.putpixel((21, 21), (0, 0, 0, 0))
+
+    L = ["100", "100", "100", "100", "100", "100", "100", "100", "100", "111"]
+    O = ["0110", "1001", "1001", "1001", "1001", "1001", "1001", "1001", "1001", "0110"]
+    W = ["10001", "10001", "10001", "10001", "10001", "10101", "10101", "10101", "11011", "01010"]
+
+    def draw_glyph(glyph_rows, gx, gy):
+        for r, row in enumerate(glyph_rows):
+            for c, bit in enumerate(row):
+                if bit == "1":
+                    img.putpixel((gx + c, gy + r), col)
+
+    draw_glyph(L, 4, 6)
+    draw_glyph(O, 8, 6)
+    draw_glyph(W, 13, 6)
+    return img
+
+
 def DEFAULT_DESIGN():
     g = lambda color, size, show=True, font="global", spacing=0: {
         "show": show,
@@ -82,7 +111,7 @@ def DEFAULT_DESIGN():
         "delimiter": ":",
         "goalBar": False,
         "rowGap": -25,
-        "y": {"top": 4, "time": 54, "low": 244, "batt": 270},
+        "y": {"top": 6, "time": 62, "low": 234, "batt": 264},
         "groups": {
             "hh": g("#c0caf5", 78, True, "global", 0),
             "mm": g("#c0caf5", 78, True, "global", 0),
@@ -666,22 +695,7 @@ def build(d):
     BATT_W, BATT_H = 22, 22
     batt_x = (W - BATT_W) // 2
     for idx in range(6):
-        img = Image.new("RGBA", (BATT_W, BATT_H), (0, 0, 0, 0))
-        if idx < 2:
-            dd = ImageDraw.Draw(img)
-            col = RED if idx == 0 else ORANGE
-            dd.rectangle([0, 0, BATT_W - 1, BATT_H - 1], outline=col, width=1)
-            fnt = font_for(gf, 9)
-            txt = "LOW"
-            bb = dd.textbbox((0, 0), txt, font=fnt)
-            tw, th = bb[2] - bb[0], bb[3] - bb[1]
-            dd.text(
-                ((BATT_W - tw) // 2 - bb[0], (BATT_H - th) // 2 - bb[1]),
-                txt,
-                font=fnt,
-                fill=col,
-            )
-        img.save(out / f"{alloc()}.png")
+        make_battery_icon(idx).save(out / f"{alloc()}.png")
     batt_start = nxt[0] - 6
     batt_js = {
         "BatteryIcon": {"X": batt_x, "Y": battY, "ImageIndex": batt_start, "ImagesCount": 6}

@@ -9,7 +9,7 @@ Fitted layout (band is only 126x294, so requested sizes are capped to fit):
   ONLY as low/critical icon, hidden above ~30% via transparent levels.
 """
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageColor
 from pathlib import Path
 import json
 
@@ -23,6 +23,35 @@ ORANGE = "#ff9e64"
 
 BG = SPEC["bg"]
 G = SPEC["groups"]
+
+
+def make_battery_icon(level):
+    img = Image.new("RGBA", (22, 22), (0, 0, 0, 0))
+    if level >= 2:
+        return img
+    hex_col = RED if level == 0 else ORANGE
+    col = ImageColor.getcolor(hex_col, "RGBA")
+    d = ImageDraw.Draw(img)
+    d.rectangle([0, 0, 21, 21], outline=col, width=1)
+    img.putpixel((0, 0), (0, 0, 0, 0))
+    img.putpixel((21, 0), (0, 0, 0, 0))
+    img.putpixel((0, 21), (0, 0, 0, 0))
+    img.putpixel((21, 21), (0, 0, 0, 0))
+
+    L = ["100", "100", "100", "100", "100", "100", "100", "100", "100", "111"]
+    O = ["0110", "1001", "1001", "1001", "1001", "1001", "1001", "1001", "1001", "0110"]
+    W = ["10001", "10001", "10001", "10001", "10001", "10101", "10101", "10101", "11011", "01010"]
+
+    def draw_glyph(glyph_rows, gx, gy):
+        for r, row in enumerate(glyph_rows):
+            for c, bit in enumerate(row):
+                if bit == "1":
+                    img.putpixel((gx + c, gy + r), col)
+
+    draw_glyph(L, 4, 6)
+    draw_glyph(O, 8, 6)
+    draw_glyph(W, 13, 6)
+    return img
 TCOL = G["hh"]["color"]
 WD = G["wd"]["color"]
 DATEC = G["dt"]["color"]
@@ -52,8 +81,10 @@ HH_Y = 54
 MM_Y = HH_Y + 80 + SPEC.get("rowGap", 0) // 2  # rowGap -30 -> offset 55
 WD_Y, WD_W, WD_H = 4, 44, 20
 DATE_Y0, DATE_Y1 = 28, 52
-STEPS_Y0, STEPS_Y1 = 244, 270
-BATT_X, BATT_Y, BATT_W, BATT_H = 31, 270, 64, 20
+STEPS_Y0, STEPS_Y1 = 234, 260
+BATT_W, BATT_H = 22, 22
+BATT_X = (W - BATT_W) // 2
+BATT_Y = 264
 print(
     f"time boxes {BW}x{BH} HH_Y={HH_Y} MM_Y={MM_Y} (spec size {G['hh']['size']}px capped to fit)"
 )
@@ -73,21 +104,9 @@ glyph("/", 18, 24, 22, DIM).save(out / "21.png")
 for i in range(10):
     glyph(str(i), 20, 26, 24, STEPC).save(out / f"{i + 22}.png")
 for idx in range(6):
-    img = Image.new("RGBA", (BATT_W, BATT_H), (0, 0, 0, 0))
-    if idx < 2:
-        d = ImageDraw.Draw(img)
-        col = RED if idx == 0 else ORANGE
-        d.rectangle([0, 0, 54, 15], outline=col, width=2)
-        d.rectangle([55, 4, 61, 11], fill=col)
-        fw = 8 if idx == 0 else 20
-        d.rectangle([3, 3, 3 + fw, 12], fill=col)
-        fnt = F(11)
-        txt = "LOW"
+    make_battery_icon(idx).save(out / f"{32 + idx}.png")
         bb = d.textbbox((0, 0), txt, font=fnt)
         tw = bb[2] - bb[0]
-        tx = 3 + fw + 4
-        d.text((tx - bb[0], 2 - bb[1]), txt, font=fnt, fill=RED)
-    img.save(out / f"{32 + idx}.png")
 for i, dd in enumerate(["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]):
     glyph(dd, WD_W, WD_H, 18, WD).save(out / f"{38 + i}.png")
 

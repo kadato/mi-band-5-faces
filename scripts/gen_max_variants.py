@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Max-time variants: tight HH/MM, weekday top, date below time, steps bottom."""
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageColor
 from pathlib import Path
 import json
 
@@ -28,6 +28,35 @@ def glyph(ch, w, h, size, color):
     return img
 
 
+def make_battery_icon(level):
+    img = Image.new("RGBA", (22, 22), (0, 0, 0, 0))
+    if level >= 2:
+        return img
+    hex_col = RED if level == 0 else ORANGE
+    col = ImageColor.getcolor(hex_col, "RGBA")
+    d = ImageDraw.Draw(img)
+    d.rectangle([0, 0, 21, 21], outline=col, width=1)
+    img.putpixel((0, 0), (0, 0, 0, 0))
+    img.putpixel((21, 0), (0, 0, 0, 0))
+    img.putpixel((0, 21), (0, 0, 0, 0))
+    img.putpixel((21, 21), (0, 0, 0, 0))
+
+    L = ["100", "100", "100", "100", "100", "100", "100", "100", "100", "111"]
+    O = ["0110", "1001", "1001", "1001", "1001", "1001", "1001", "1001", "1001", "0110"]
+    W = ["10001", "10001", "10001", "10001", "10001", "10101", "10101", "10101", "11011", "01010"]
+
+    def draw_glyph(glyph_rows, gx, gy):
+        for r, row in enumerate(glyph_rows):
+            for c, bit in enumerate(row):
+                if bit == "1":
+                    img.putpixel((gx + c, gy + r), col)
+
+    draw_glyph(L, 4, 6)
+    draw_glyph(O, 8, 6)
+    draw_glyph(W, 13, 6)
+    return img
+
+
 # tight vertical: 60x90 boxes, offset 70 (overlap 20, visual gap ~14px)
 BW, BH = 60, 90
 BX0, BX1 = 13, 53
@@ -37,7 +66,7 @@ DATE_Y0, DATE_Y1 = 28, 52
 STEPS_Y0, STEPS_Y1 = 234, 260
 BATT_W, BATT_H = 22, 22
 BATT_X = (W - BATT_W) // 2
-BATT_Y = 266
+BATT_Y = 264
 
 
 def build(name, tcol, wdcol, datecol, stepcol):
@@ -54,19 +83,7 @@ def build(name, tcol, wdcol, datecol, stepcol):
     for i in range(10):
         glyph(str(i), 20, 26, 24, stepcol).save(out / f"{i + 22}.png")
     for idx in range(6):
-        img = Image.new("RGBA", (BATT_W, BATT_H), (0, 0, 0, 0))
-        if idx < 2:
-            d = ImageDraw.Draw(img)
-            col = RED if idx == 0 else ORANGE
-            d.rectangle([0, 0, BATT_W - 1, BATT_H - 1], outline=col, width=1)
-            fnt = F(9)
-            txt = "LOW"
-            bb = d.textbbox((0, 0), txt, font=fnt)
-            tw, th = bb[2] - bb[0], bb[3] - bb[1]
-            tx = (BATT_W - tw) // 2 - bb[0]
-            ty = (BATT_H - th) // 2 - bb[1]
-            d.text((tx, ty), txt, font=fnt, fill=col)
-        img.save(out / f"{32 + idx}.png")
+        make_battery_icon(idx).save(out / f"{32 + idx}.png")
     for i, dd in enumerate(["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]):
         glyph(dd, 44, 20, 18, wdcol).save(out / f"{38 + i}.png")
     js = {
@@ -144,19 +161,7 @@ def build_duo(name, hhcol, mmcol, wdcol, datecol, stepcol):
     for i in range(10):
         glyph(str(i), 20, 26, 24, stepcol).save(out / f"{i + 22}.png")
     for idx in range(6):
-        img = Image.new("RGBA", (BATT_W, BATT_H), (0, 0, 0, 0))
-        if idx < 2:
-            d = ImageDraw.Draw(img)
-            col = RED if idx == 0 else ORANGE
-            d.rectangle([0, 0, BATT_W - 1, BATT_H - 1], outline=col, width=1)
-            fnt = F(9)
-            txt = "LOW"
-            bb = d.textbbox((0, 0), txt, font=fnt)
-            tw, th = bb[2] - bb[0], bb[3] - bb[1]
-            tx = (BATT_W - tw) // 2 - bb[0]
-            ty = (BATT_H - th) // 2 - bb[1]
-            d.text((tx, ty), txt, font=fnt, fill=col)
-        img.save(out / f"{32 + idx}.png")
+        make_battery_icon(idx).save(out / f"{32 + idx}.png")
     for i, dd in enumerate(["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]):
         glyph(dd, 44, 20, 18, wdcol).save(out / f"{38 + i}.png")
     for i in range(10):
