@@ -12,7 +12,7 @@ The band has a 126x294 pixel AMOLED display. The designer renders real sprite PN
 
 - Exact pixel preview. The browser studio loads the real 126x294 PNG assets directly from disk. What you see on screen matches the hardware display.
 - Live rebuild workflow. Adjust colors, font sizes, spacing, or element order in the web interface. The server generates new PNG sprites and repacks the `.bin` firmware file.
-- Clean battery indicator. The battery icon remains completely hidden when the charge is 30% or higher. An orange indicator appears between 10% and 29%, and a red indicator appears below 10%.
+- Clean battery indicator. The battery indicator is a symmetrical square with LOW text that remains hidden when charge is 30% or higher. An orange square appears between 10% and 29%, and a red square appears below 10%.
 - Pre-built watch faces. Includes multiple ready-to-flash colorways based on Tokyo Night palettes and retro arcade styles.
 - Overflow warnings. If your element configuration exceeds the 294 pixel vertical screen limit, the designer reports the exact overflow in pixels.
 
