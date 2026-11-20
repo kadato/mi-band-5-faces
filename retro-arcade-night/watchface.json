@@ -1,0 +1,173 @@
+{
+  "Background": {
+    "Image": {
+      "X": 0,
+      "Y": 0,
+      "ImageIndex": 0
+    }
+  },
+  "Time": {
+    "Hours": {
+      "Tens": {
+        "X": 17,
+        "Y": 24,
+        "ImageIndex": 1,
+        "ImagesCount": 10
+      },
+      "Ones": {
+        "X": 63,
+        "Y": 24,
+        "ImageIndex": 1,
+        "ImagesCount": 10
+      }
+    },
+    "Minutes": {
+      "Tens": {
+        "X": 17,
+        "Y": 94,
+        "ImageIndex": 1,
+        "ImagesCount": 10
+      },
+      "Ones": {
+        "X": 63,
+        "Y": 94,
+        "ImageIndex": 1,
+        "ImagesCount": 10
+      }
+    }
+  },
+  "Date": {
+    "MonthAndDayAndYear": {
+      "OneLine": {
+        "Number": {
+          "TopLeftX": 5,
+          "TopLeftY": 180,
+          "BottomRightX": 121,
+          "BottomRightY": 206,
+          "Alignment": "Center",
+          "SpacingX": 1,
+          "SpacingY": 0,
+          "ImageIndex": 11,
+          "ImagesCount": 10
+        },
+        "DelimiterImageIndex": 21
+      },
+      "TwoDigitsMonth": true,
+      "TwoDigitsDay": true
+    }
+  },
+  "Activity": {
+    "Steps": {
+      "Number": {
+        "TopLeftX": 5,
+        "TopLeftY": 210,
+        "BottomRightX": 121,
+        "BottomRightY": 230,
+        "Alignment": "Center",
+        "SpacingX": 1,
+        "SpacingY": 0,
+        "ImageIndex": 22,
+        "ImagesCount": 10
+      }
+    },
+    "Pulse": {
+      "Number": {
+        "TopLeftX": 5,
+        "TopLeftY": 256,
+        "BottomRightX": 121,
+        "BottomRightY": 282,
+        "Alignment": "Center",
+        "SpacingX": 1,
+        "SpacingY": 0,
+        "ImageIndex": 32,
+        "ImagesCount": 10
+      }
+    }
+  },
+  "StepsProgress": {
+    "Linear": {
+      "StartImageIndex": 42,
+      "Segments": [
+        {
+          "X": 8,
+          "Y": 232
+        },
+        {
+          "X": 19,
+          "Y": 232
+        },
+        {
+          "X": 30,
+          "Y": 232
+        },
+        {
+          "X": 41,
+          "Y": 232
+        },
+        {
+          "X": 52,
+          "Y": 232
+        },
+        {
+          "X": 63,
+          "Y": 232
+        },
+        {
+          "X": 74,
+          "Y": 232
+        },
+        {
+          "X": 85,
+          "Y": 232
+        },
+        {
+          "X": 96,
+          "Y": 232
+        },
+        {
+          "X": 107,
+          "Y": 232
+        }
+      ]
+    }
+  },
+  "Battery": {
+    "Linear": {
+      "StartImageIndex": 52,
+      "Segments": [
+        {
+          "X": 32,
+          "Y": 242
+        },
+        {
+          "X": 44,
+          "Y": 242
+        },
+        {
+          "X": 56,
+          "Y": 242
+        },
+        {
+          "X": 68,
+          "Y": 242
+        },
+        {
+          "X": 80,
+          "Y": 242
+        },
+        {
+          "X": 92,
+          "Y": 242
+        },
+        {
+          "X": 104,
+          "Y": 242
+        },
+        {
+          "X": 116,
+          "Y": 242
+        }
+      ]
+    }
+  }
+}
