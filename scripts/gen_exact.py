@@ -25,8 +25,11 @@ for name in FACES:
 
     def collect(o):
         if isinstance(o, dict):
-            if "ImageIndex" in o and "ImagesCount" in o:
-                ids.update(range(o["ImageIndex"], o["ImageIndex"] + o["ImagesCount"]))
+            if "ImageIndex" in o:
+                if "ImagesCount" in o:
+                    ids.update(range(o["ImageIndex"], o["ImageIndex"] + o["ImagesCount"]))
+                else:
+                    ids.add(o["ImageIndex"])
             if "DelimiterImageIndex" in o:
                 ids.add(o["DelimiterImageIndex"])
             if "SuffixImageIndex" in o:

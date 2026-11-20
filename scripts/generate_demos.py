@@ -80,7 +80,12 @@ def render_face(face_name, hh="12", mm="45", date_str="11/17", day_str="WED", st
     batt_cfg = wf.get("Battery", {})
     if "BatteryIcon" in batt_cfg:
         bi_cfg = batt_cfg["BatteryIcon"]
-        idx = min(bi_cfg["ImagesCount"] - 1, int(batt_pct / 100 * 5 + 0.5))
+        if batt_pct < 10:
+            idx = 0
+        elif batt_pct < 20:
+            idx = 1
+        else:
+            idx = min(bi_cfg["ImagesCount"] - 1, 2 + (batt_pct - 20) // 20)
         bim = Image.open(face_dir / f"{bi_cfg['ImageIndex'] + idx}.png")
         if bim.getbbox() is not None:
             canvas.paste(bim, (bi_cfg["X"], bi_cfg["Y"]), bim)

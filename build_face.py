@@ -13,6 +13,8 @@ battery icon, BT/lock/DND status, goal bar.
 
 import json
 import sys
+import subprocess
+import shutil
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont, ImageColor
@@ -44,14 +46,36 @@ def font_for(name, size):
     return ImageFont.truetype(str(p), size)
 
 
-def glyph(ch, w, h, size, color, fname):
-    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    d = ImageDraw.Draw(img)
+def glyph(ch, w, h, size, color, fname, thresh=100):
+    tmp = Image.new("RGBA", (w + 100, h + 100), (0, 0, 0, 0))
+    d = ImageDraw.Draw(tmp)
     f = font_for(fname, size)
-    bb = d.textbbox((0, 0), ch, font=f)
-    tw, th = bb[2] - bb[0], bb[3] - bb[1]
-    d.text(((w - tw) / 2 - bb[0], (h - th) / 2 - bb[1]), ch, font=f, fill=color)
-    return img
+    d.text((50, 50), ch, font=f, fill=color)
+    ab = tmp.getbbox()
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    if ab:
+        cropped = tmp.crop(ab)
+        ox = (w - cropped.width) // 2
+        oy = (h - cropped.height) // 2
+        img.paste(cropped, (ox, oy), cropped)
+    r, g, b, a = img.split()
+    # Binarize alpha to {0, 255} with threshold 100 so all strokes survive without clipping
+    a = a.point(lambda p: 255 if p >= thresh else 0)
+    return Image.merge("RGBA", (r, g, b, a))
+
+
+def measure_digits(fname, size):
+    f = font_for(fname, size)
+    max_w, max_h = 0, 0
+    for ch in "0123456789":
+        tmp = Image.new("RGBA", (200, 200), (0, 0, 0, 0))
+        d = ImageDraw.Draw(tmp)
+        d.text((50, 50), ch, font=f, fill=(255, 255, 255, 255))
+        ab = tmp.getbbox()
+        if ab:
+            max_w = max(max_w, ab[2] - ab[0])
+            max_h = max(max_h, ab[3] - ab[1])
+    return max(max_w, 1), max(max_h, 1)
 
 
 def text_img(s, size, color, fname, pad=2):
@@ -63,12 +87,16 @@ def text_img(s, size, color, fname, pad=2):
     img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     d.text((pad - bb[0], pad - bb[1]), s, font=f, fill=color)
-    return img
+    r, g, b, a = img.split()
+    # Binarize alpha to {0, 255} for hardware safety
+    a = a.point(lambda p: 255 if p >= 100 else 0)
+    return Image.merge("RGBA", (r, g, b, a))
 
 
 def make_battery_icon(level):
     w, h, border = 44, 22, 2
     img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    # Low-only indicator: hidden when battery is normal/full (>= 20%, level >= 2)
     if level >= 2:
         return img
     hex_col = RED if level == 0 else ORANGE
@@ -103,7 +131,9 @@ def make_battery_icon(level):
     draw_glyph(O, cx, start_y)
     cx += len(O[0]) + spacing
     draw_glyph(W, cx, start_y)
-    return img
+    r, g, b, a = img.split()
+    a = a.point(lambda p: 255 if p >= 128 else 0)
+    return Image.merge("RGBA", (r, g, b, a))
 
 
 def DEFAULT_DESIGN():
@@ -121,15 +151,15 @@ def DEFAULT_DESIGN():
         "topOrder": "wd-dt",
         "delimiter": ":",
         "goalBar": False,
-        "rowGap": -25,
-        "y": {"top": 6, "time": 62, "low": 234, "batt": 264},
+        "rowGap": 6,
+        "y": {"top": 12, "time": 72, "low": 252, "batt": 224},
         "groups": {
-            "hh": g("#c0caf5", 78, True, "global", 0),
-            "mm": g("#c0caf5", 78, True, "global", 0),
+            "hh": g("#c0caf5", 80, True, "global", 4),
+            "mm": g("#c0caf5", 80, True, "global", 4),
             "ss": g("#565f89", 26, False, "global", 0),
             "wd": g("#7aa2f7", 18, True, "global", 2),
             "dt": g("#7aa2f7", 22, True, "global", 0),
-            "st": g("#7aa2f7", 24, True, "global", 0),
+            "st": g("#7aa2f7", 28, True, "global", 0),
             "di": g("#7aa2f7", 22, False, "global", 0),
             "ca": g("#7aa2f7", 22, False, "global", 0),
             "pu": g("#f7768e", 22, False, "global", 0),
@@ -218,7 +248,11 @@ def build(d):
         return i
 
     def digit_set(color, size, fname, chars="0123456789", box=None):
-        bw, bh = box if box else (round(size * 0.82), round(size * 1.09))
+        if box:
+            bw, bh = box
+        else:
+            gw, gh = measure_digits(fname, size)
+            bw, bh = gw + 4, gh + 4
         base = alloc(10)
         for k, ch in enumerate("0123456789"):
             glyph(ch, bw, bh, size, color, fname).save(out / f"{base + k}.png")
@@ -238,86 +272,118 @@ def build(d):
         and mm.get("font", "global") == hh.get("font", "global")
         and int(mm["size"]) == int(hh["size"])
     )
-    BH = round(int(hh["size"]) / 0.87)
-    BW = round(BH * 2 / 3)
-    tfont = round(BH * 0.87)
-    mmSize = int(mm["size"])
-    BH2 = round(mmSize / 0.87)
-    BW2 = round(BH2 * 2 / 3)
-    tfont2 = round(BH2 * 0.87)
+    hhSize = int(hh["size"])
+    gw, gh = measure_digits(hhF, hhSize)
+    BW = gw + 6
+    BH = gh + 5
+    if BW % 2 != 0:
+        BW += 1
+    if BH % 2 != 0:
+        BH += 1
+    tfont = hhSize
+
+    if linked:
+        mmBase = None
+        BW2, BH2, tfont2, mmF, mmSize = BW, BH, tfont, hhF, hhSize
+    else:
+        mmSize = int(mm["size"])
+        gw2, gh2 = measure_digits(mmF, mmSize)
+        BW2 = gw2 + 6
+        BH2 = gh2 + 5
+        if BW2 % 2 != 0:
+            BW2 += 1
+        if BH2 % 2 != 0:
+            BH2 += 1
+        tfont2 = mmSize
+
     if ss["show"]:
-        ssTfont = round(int(ss["size"]) / 0.87)
-        ssBH = round(int(ss["size"]) / 0.87)
-        ssBW = round(ssBH * 2 / 3)
-        ssTfont = round(ssBH * 0.87)
+        ssSize = int(ss["size"])
+        ssGW, ssGH = measure_digits(ssF, ssSize)
+        ssBW = ssGW + 4
+        ssBH = ssGH + 4
+        if ssBW % 2 != 0:
+            ssBW += 1
+        if ssBH % 2 != 0:
+            ssBH += 1
+        ssTfont = ssSize
     else:
         ssBH = ssBW = ssTfont = 0
+
     if layout_mode == "side":
-        # measure colon at requested size, then shrink everything to fit 116px
-        _ci = text_img(delim, tfont, hh["color"], hhF)
+        _ci = text_img(delim, min(tfont, 36), hh["color"], hhF)
         _cw = _ci.width
-        _sp = int(hh.get("spacing", 0))
-        _sp2 = int(mm.get("spacing", 0))
-        _tot = (2 * BW - 20 + _sp) + _cw + 6 + (2 * BW2 - 20 + _sp2)
+        _sp = max(0, int(hh.get("spacing", 0)))
+        _sp2 = max(0, int(mm.get("spacing", 0)))
+        _tot = (2 * BW + _sp) + _cw + 6 + (2 * BW2 + _sp2)
         if ss["show"]:
-            _tot += _cw + 6 + (2 * ssBW - 20 + int(ss.get("spacing", 0)))
-        if _tot > 116:
-            f = 116 / _tot
-            BH, BW = max(8, round(BH * f)), max(6, round(BW * f))
-            tfont = max(6, round(tfont * f))
-            BH2, BW2 = max(8, round(BH2 * f)), max(6, round(BW2 * f))
-            tfont2 = max(6, round(tfont2 * f))
+            _tot += _cw + 6 + (2 * ssBW + max(0, int(ss.get("spacing", 0))))
+        if _tot > 118:
+            f = 118 / _tot
+            hhSize = max(10, round(hhSize * f))
+            mmSize = max(10, round(mmSize * f))
+            gw, gh = measure_digits(hhF, hhSize)
+            BW, BH = gw + 4, gh + 4
+            gw2, gh2 = measure_digits(mmF, mmSize)
+            BW2, BH2 = gw2 + 4, gh2 + 4
+            tfont, tfont2 = hhSize, mmSize
             if ss["show"]:
-                ssBH, ssBW = max(8, round(ssBH * f)), max(6, round(ssBW * f))
-                ssTfont = max(6, round(ssTfont * f))
+                ssSize = max(8, round(ssSize * f))
+                ssGW, ssGH = measure_digits(ssF, ssSize)
+                ssBW, ssBH = ssGW + 2, ssGH + 2
+                ssTfont = ssSize
+
     hhBase, _, _ = digit_set(hh["color"], tfont, hhF, box=(BW, BH))
-    # time cells use BW x BH boxes
-    if linked:
-        mmBase = hhBase
-        BW2, BH2, tfont2 = BW, BH, tfont
-    else:
-        mmBase, _, _ = digit_set(mm["color"], tfont2, mmF, box=(BW2, BH2))
+    # Mi Band 5 firmware requires distinct ImageIndex sets for Hours and Minutes;
+    # sharing hhBase causes the firmware display engine to fail initializing Time.
+    mmBase, _, _ = digit_set(mm["color"], tfont2, mmF, box=(BW2, BH2))
     ssBase = None
     if ss["show"]:
         ssBase, _, _ = digit_set(ss["color"], ssTfont, ssF, box=(ssBW, ssBH))
     colonIdx = colonW = colonH = None
     if layout_mode == "side":
-        colonIdx, colonW, colonH = small_text(delim, hh["color"], tfont, hhF)
+        colonIdx, colonW, colonH = small_text(delim, hh["color"], min(tfont, 36), hhF)
 
-    sp = int(hh.get("spacing", 0))
-    step = BW - 20 + sp
+    sp = max(0, int(hh.get("spacing", 0)))
+    step = BW + sp
+    sp2 = max(0, int(mm.get("spacing", 0)))
+    step2 = BW2 + sp2
+    gap = max(0, int(d.get("rowGap", 6)))
     MM_Y = timeY + BH + gap
+
     if layout_mode == "stack":
-        HH_X0 = 63 - (2 * BW - 20 + sp) // 2
+        HH_X0 = 63 - (2 * BW + sp) // 2
         HH_X1 = HH_X0 + step
-        MM_X0, MM_X1 = HH_X0, HH_X1
+        MM_X0 = 63 - (2 * BW2 + sp2) // 2
+        MM_X1 = MM_X0 + step2
         if ss["show"]:
-            sstep = ssBW - 20 + int(ss.get("spacing", 0))
-            SS_X0 = 63 - (2 * ssBW - 20 + int(ss.get("spacing", 0))) // 2
+            ssp = max(0, int(ss.get("spacing", 0)))
+            sstep = ssBW + ssp
+            SS_X0 = 63 - (2 * ssBW + ssp) // 2
             SS_X1 = SS_X0 + sstep
+            SS_Y = MM_Y + BH2 + GAP
         else:
             SS_X0 = SS_X1 = HH_X0
-        SS_Y = MM_Y + BH2 + GAP
+            SS_Y = MM_Y + BH2
     else:
         # side: HH tens/ones, delim, MM tens/ones [, delim, SS tens/ones]
-        step2 = BW2 - 20 + int(mm.get("spacing", 0))
-        parts = [2 * BW - 20 + sp, colonW + 6, 2 * BW2 - 20 + int(mm.get("spacing", 0))]
+        parts = [2 * BW + sp, colonW + 6, 2 * BW2 + sp2]
         if ss["show"]:
-            parts += [colonW + 6, 2 * ssBW - 20 + int(ss.get("spacing", 0))]
+            parts += [colonW + 6, 2 * ssBW + max(0, int(ss.get("spacing", 0)))]
         total = sum(parts)
         x = 63 - total // 2
         HH_X0, HH_X1 = x, x + step
-        x += 2 * BW - 20 + sp
+        x += 2 * BW + sp
         dx = x + 3
         x += colonW + 6
         MM_X0, MM_X1 = x, x + step2
-        x += 2 * BW2 - 20 + int(mm.get("spacing", 0))
+        x += 2 * BW2 + sp2
         SS_X0 = SS_X1 = None
         if ss["show"]:
-            x += 3  # second delim pos ~ dx2
+            x += 3
             dx2 = x
             x += colonW + 6
-            sstep = ssBW - 20 + int(ss.get("spacing", 0))
+            ssp = max(0, int(ss.get("spacing", 0)))
+            sstep = ssBW + ssp
             SS_X0, SS_X1 = x, x + sstep
         else:
             dx2 = None
@@ -333,6 +399,7 @@ def build(d):
             "Tens": {"X": MM_X0, "Y": MM_Y, "ImageIndex": mmBase, "ImagesCount": 10},
             "Ones": {"X": MM_X1, "Y": MM_Y, "ImageIndex": mmBase, "ImagesCount": 10},
         },
+        "DrawingOrder": False,
     }
     if ss["show"]:
         time_js["Seconds"] = {
@@ -392,6 +459,7 @@ def build(d):
                 "TwoDigitsDay": True,
             }
         }
+    topBottom = cur - GAP if tops else topY
 
     # ---- low rows ----
     LOW_ORDER = [
@@ -714,15 +782,101 @@ def build(d):
     if batt_txt_js:
         batt_js["BatteryText"] = batt_txt_js
 
-    js = {"Background": {"Image": {"X": 0, "Y": 0, "ImageIndex": 0}}, "Time": time_js}
+    # Composite preview thumbnail (126x294) for on-band display and app preview
+    preview_idx = alloc()
+    meta["preview_idx"] = preview_idx
+    preview_img = Image.open(out / "0.png").convert("RGBA")
+
+    # 1. Weekday FRI
+    if wd_js:
+        fri_idx = wd_js["ImageIndex"] + 4
+        if (out / f"{fri_idx}.png").exists():
+            im_fri = Image.open(out / f"{fri_idx}.png")
+            preview_img.paste(im_fri, (wd_js["X"], wd_js["Y"]), im_fri)
+    # 2. Date 11/20
+    if dt_js:
+        nl = dt_js["MonthAndDayAndYear"]["OneLine"]
+        n_idx = nl["Number"]["ImageIndex"]
+        del_idx = nl["DelimiterImageIndex"]
+        if (out / f"{n_idx + 1}.png").exists():
+            im_d1 = Image.open(out / f"{n_idx + 1}.png")
+            im_slash = Image.open(out / f"{del_idx}.png")
+            im_d2 = Image.open(out / f"{n_idx + 2}.png")
+            im_d0 = Image.open(out / f"{n_idx}.png")
+            sp = nl["Number"].get("SpacingX", 1)
+            tot_w = im_d1.width * 4 + im_slash.width + sp * 4
+            dx = (nl["Number"]["TopLeftX"] + nl["Number"]["BottomRightX"] - tot_w) // 2
+            dy = nl["Number"]["TopLeftY"]
+            preview_img.paste(im_d1, (dx, dy), im_d1)
+            dx += im_d1.width + sp
+            preview_img.paste(im_d1, (dx, dy), im_d1)
+            dx += im_d1.width + sp
+            preview_img.paste(im_slash, (dx, dy), im_slash)
+            dx += im_slash.width + sp
+            preview_img.paste(im_d2, (dx, dy), im_d2)
+            dx += im_d2.width + sp
+            preview_img.paste(im_d0, (dx, dy), im_d0)
+    # 3. Time 10:09
+    if "Hours" in time_js and "Minutes" in time_js:
+        th = time_js["Hours"]
+        tm = time_js["Minutes"]
+        h_idx = th["Tens"]["ImageIndex"]
+        m_idx = tm["Tens"]["ImageIndex"]
+        if (out / f"{h_idx + 1}.png").exists():
+            im_h1 = Image.open(out / f"{h_idx + 1}.png")
+            im_h0 = Image.open(out / f"{h_idx}.png")
+            preview_img.paste(im_h1, (th["Tens"]["X"], th["Tens"]["Y"]), im_h1)
+            preview_img.paste(im_h0, (th["Ones"]["X"], th["Ones"]["Y"]), im_h0)
+        if (out / f"{m_idx}.png").exists():
+            im_m0 = Image.open(out / f"{m_idx}.png")
+            im_m9 = Image.open(out / f"{m_idx + 9}.png")
+            preview_img.paste(im_m0, (tm["Tens"]["X"], tm["Tens"]["Y"]), im_m0)
+            preview_img.paste(im_m9, (tm["Ones"]["X"], tm["Ones"]["Y"]), im_m9)
+    # 4. Steps 8432
+    if act and "Steps" in act:
+        st_box = act["Steps"]["Number"]
+        s_idx = st_box["ImageIndex"]
+        if (out / f"{s_idx + 8}.png").exists():
+            im_s8 = Image.open(out / f"{s_idx + 8}.png")
+            im_s4 = Image.open(out / f"{s_idx + 4}.png")
+            im_s3 = Image.open(out / f"{s_idx + 3}.png")
+            im_s2 = Image.open(out / f"{s_idx + 2}.png")
+            sp = st_box.get("SpacingX", 1)
+            tot_w = im_s8.width + im_s4.width + im_s3.width + im_s2.width + sp * 3
+            sx = (st_box["TopLeftX"] + st_box["BottomRightX"] - tot_w) // 2
+            sy = st_box["TopLeftY"]
+            preview_img.paste(im_s8, (sx, sy), im_s8)
+            sx += im_s8.width + sp
+            preview_img.paste(im_s4, (sx, sy), im_s4)
+            sx += im_s4.width + sp
+            preview_img.paste(im_s3, (sx, sy), im_s3)
+            sx += im_s3.width + sp
+            preview_img.paste(im_s2, (sx, sy), im_s2)
+    # 5. Battery: representative orange LOW badge
+    if (out / f"{batt_start + 1}.png").exists():
+        im_batt = Image.open(out / f"{batt_start + 1}.png")
+        preview_img.paste(im_batt, (batt_x, battY), im_batt)
+
+    preview_img.convert("RGB").save(out / f"{preview_idx}.png")
+
+    js = {
+        "Background": {
+            "Image": {"X": 0, "Y": 0, "ImageIndex": 0},
+            "PreviewEN": {"X": 0, "Y": 0, "ImageIndex": preview_idx},
+            "PreviewCN": {"X": 0, "Y": 0, "ImageIndex": preview_idx},
+            "PreviewCN2": {"X": 0, "Y": 0, "ImageIndex": preview_idx},
+        },
+        "Time": time_js,
+    }
+    if act:
+        act["UnknownV7"] = 0
+        js["Activity"] = act
     if dt_js or wd_js:
         js["Date"] = {}
         if dt_js:
             js["Date"].update(dt_js)
         if wd_js:
             js["Date"]["ENWeekDays"] = wd_js
-    if act:
-        js["Activity"] = act
     if weather_js:
         # finalize hil Separate numbers with centered row boxes
         if (
@@ -778,6 +932,7 @@ def build(d):
                 "OffImageIndex": m["off"],
             }
         js["Status"] = st_map
+    js["Battery"] = batt_js
     if alarm_js is not None:
         a = alarm_js
         js["Alarm"] = {
@@ -789,7 +944,6 @@ def build(d):
             "UnknownV6": 0,
             "UnknownV7": 0,
         }
-    js["Battery"] = batt_js
 
     (out / "watchface.json").write_text(json.dumps(js, indent=2))
     # resolve suffix image widths for preview centering
@@ -804,17 +958,136 @@ def build(d):
     if layout_mode == "stack":
         timeBottom = (SS_Y + ssBH) if ss["show"] else (MM_Y + BH2)
     else:
-        timeBottom = timeY + BH
-    lowBottom = cur - GAP  # cur already advanced past last row gap
+        timeBottom = timeY + max(BH, BH2)
+    lowBottom = cur - GAP if meta["lowRows"] else lowY
+    battBottom = battY + BATT_H
     meta["bounds"] = {
+        "topTop": topY,
+        "topBottom": topBottom,
+        "timeTop": timeY,
         "timeBottom": timeBottom,
+        "timeBW": BW,
+        "timeBH": BH,
+        "timeBW2": BW2,
+        "timeBH2": BH2,
+        "lowTop": lowY,
         "lowBottom": lowBottom,
-        "battBottom": battY + BATT_H,
+        "battTop": battY,
+        "battBottom": battBottom,
     }
-    meta["overflowPx"] = max(0, timeBottom - H, lowBottom - H, (battY + BATT_H) - H)
-    (out / "meta.json").write_text(json.dumps(meta))
-    print(f"clean-night-18-custom {len(list(out.glob('*.png')))} images")
+    meta["overflowPx"] = max(0, timeBottom - H, lowBottom - H, battBottom - H)
+    errors = validate_hardware(js, meta, layout_mode, ss["show"])
+    meta["validationErrors"] = errors
+    meta["valid"] = len(errors) == 0
+    if errors:
+        print(f"WARNING: Mi Band 5 hardware constraint violations:")
+        for err in errors:
+            print(f"  - {err}")
+    (out / "meta.json").write_text(json.dumps(meta, indent=2))
+    print(f"clean-night-18-custom {len(list(out.glob('*.png')))} images, valid={meta['valid']}")
     return js, meta
+
+
+def validate_hardware(js, meta, layout_mode, ss_show):
+    errors = []
+    b = meta.get("bounds", {})
+
+    if meta.get("overflowPx", 0) > 0:
+        errors.append(f"Content overflows screen height (294px) by {meta['overflowPx']}px")
+
+    time = js.get("Time", {})
+    if "Hours" in time:
+        h = time["Hours"]
+        if "Tens" in h and "Ones" in h:
+            tx, ox = h["Tens"]["X"], h["Ones"]["X"]
+            bw = b.get("timeBW", 42)
+            if ox < tx + bw:
+                errors.append(f"Hours Tens (X={tx}, W={bw}) and Ones (X={ox}) overlap by {tx + bw - ox}px")
+            if tx < 0 or ox + bw > W:
+                errors.append(f"Hours digits exceed screen width (0..126px)")
+
+    if "Minutes" in time:
+        m = time["Minutes"]
+        if "Tens" in m and "Ones" in m:
+            tx, ox = m["Tens"]["X"], m["Ones"]["X"]
+            bw2 = b.get("timeBW2", 42)
+            if ox < tx + bw2:
+                errors.append(f"Minutes Tens (X={tx}, W={bw2}) and Ones (X={ox}) overlap by {tx + bw2 - ox}px")
+            if tx < 0 or ox + bw2 > W:
+                errors.append(f"Minutes digits exceed screen width (0..126px)")
+
+    if layout_mode == "stack":
+        hy = time["Hours"]["Tens"]["Y"]
+        my = time["Minutes"]["Tens"]["Y"]
+        bh = b.get("timeBH", 62)
+        if my < hy + bh:
+            errors.append(f"Hours (Y={hy}, H={bh}) and Minutes (Y={my}) overlap by {hy + bh - my}px")
+        if ss_show and "Seconds" in time:
+            sy = time["Seconds"]["Tens"]["Y"]
+            bh2 = b.get("timeBH2", 62)
+            if sy < my + bh2:
+                errors.append(f"Minutes (Y={my}, H={bh2}) and Seconds (Y={sy}) overlap by {my + bh2 - sy}px")
+
+    top_bottom = b.get("topBottom", 0)
+    time_top = b.get("timeTop", 0)
+    time_bottom = b.get("timeBottom", 0)
+    low_top = b.get("lowTop", 0)
+    low_bottom = b.get("lowBottom", 0)
+    batt_top = b.get("battTop", 0)
+    batt_bottom = b.get("battBottom", 0)
+
+    if top_bottom > time_top:
+        errors.append(f"Top block (bottom={top_bottom}) overlaps Time (top={time_top})")
+
+    # Battery can be placed either between Time and Low (battTop < lowTop), or below Low (battTop >= lowTop)
+    if batt_top < low_top:
+        if time_bottom > batt_top:
+            errors.append(f"Time block (bottom={time_bottom}) overlaps Battery (top={batt_top})")
+        if batt_bottom > low_top and meta.get("lowRows"):
+            errors.append(f"Battery (bottom={batt_bottom}) overlaps Activity/Low (top={low_top})")
+        if low_bottom > 294:
+            errors.append(f"Activity/Low (bottom={low_bottom}) overflows bottom of screen (294px)")
+    else:
+        if time_bottom > low_top and meta.get("lowRows"):
+            errors.append(f"Time block (bottom={time_bottom}) overlaps Activity/Low (top={low_top})")
+        if low_bottom > batt_top and meta.get("lowRows"):
+            errors.append(f"Activity/Low block (bottom={low_bottom}) overlaps Battery (top={batt_top})")
+        if batt_bottom > 294:
+            errors.append(f"Battery (bottom={batt_bottom}) overflows bottom of screen (294px)")
+
+    # Hardware sprite buffer check (Mi Band 5 display blitter has a 4KB / 4096-byte line buffer limit)
+    # In format 0x64 (8bpp indexed): binary sprite size = 16 (header) + 1024 (palette) + W*H bytes.
+    # Therefore, any sprite with area W*H > 3056 px (1040 + 3056 = 4096 B) exceeds the hardware buffer.
+    bw = b.get("timeBW", 42)
+    bh = b.get("timeBH", 62)
+    if bw * bh > 3056:
+        errors.append(f"Hours sprite size ({bw}x{bh} = {bw * bh}px) exceeds 4KB hardware buffer limit (max 3056px)")
+    bw2 = b.get("timeBW2", 42)
+    bh2 = b.get("timeBH2", 62)
+    if bw2 * bh2 > 3056:
+        errors.append(f"Minutes sprite size ({bw2}x{bh2} = {bw2 * bh2}px) exceeds 4KB hardware buffer limit (max 3056px)")
+
+    out_dir = ROOT / "faces" / "clean-night-18-custom"
+    preview_idx = meta.get("preview_idx", 45)
+    for p in out_dir.glob("*.png"):
+        if not p.stem.isdigit():
+            continue
+        idx = int(p.stem)
+        if idx == 0 or idx == preview_idx:
+            continue
+        try:
+            im = Image.open(p)
+            area = im.width * im.height
+            if area > 3056:
+                errors.append(f"Sprite {p.name} ({im.width}x{im.height} = {area}px) exceeds 4KB hardware buffer limit")
+            if im.mode == "RGBA":
+                alphas = set(im.getchannel("A").get_flattened_data())
+                if not alphas.issubset({0, 255}):
+                    errors.append(f"Sprite {p.name} contains partial alpha (must be 1-bit alpha for 0x64 encoding)")
+        except Exception:
+            pass
+
+    return errors
 
 
 def main():
@@ -833,7 +1106,72 @@ def main():
         DESIGN.write_text(json.dumps(d, indent=1))
     if len(sys.argv) > 1:
         d.update(json.loads(Path(sys.argv[1]).read_text()))
-    build(d)
+    js, meta = build(d)
+    if not meta.get("valid", False):
+        print(f"ERROR: Build failed hardware validation: {meta.get('validationErrors')}")
+        sys.exit(1)
+
+    bin_dir = ROOT / "bin"
+    bin_dir.mkdir(exist_ok=True)
+    packed = ROOT / "clean-night-18-custom_packed.bin"
+    if packed.exists():
+        packed.unlink()
+    r = subprocess.run(
+        ["./node_modules/.bin/wfjs", "writeBin", "-i", "faces/clean-night-18-custom", "-m", "miband5"],
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    if r.returncode != 0:
+        print(f"wfjs packaging error: {r.stderr}")
+        sys.exit(1)
+    target = bin_dir / "clean-night-18-custom.bin"
+    if packed.exists():
+        packed.replace(target)
+    print(f"Packaged {target} ({target.stat().st_size} bytes)")
+
+    # Verify hardware safety: parse the packed binary
+    verify_script = f"""
+const fs = require('fs');
+const {{ getAvailableModels, parseWatchFaceBin }} = require('./node_modules/watchface-js/dist/watchFaceBinTools/watchFaceBinParser.js');
+const mb5 = getAvailableModels().find(m => m.id === 'miband5');
+const buf = fs.readFileSync('{target}');
+const ab = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+const wf = parseWatchFaceBin(ab, mb5.fileType);
+const previewIdx = wf.parameters.Background && wf.parameters.Background.PreviewEN ? wf.parameters.Background.PreviewEN.ImageIndex : -1;
+for (let i = 0; i < wf.images.length; i++) {{
+  const img = wf.images[i];
+  if (i !== 0 && i !== previewIdx) {{
+    if (img.pixelFormat !== 0x64) {{
+      throw new Error(`Image ${{i}} format 0x${{img.pixelFormat.toString(16)}} (expected 0x64 indexed colors)`);
+    }}
+    const bSize = 16 + 1024 + img.width * img.height;
+    if (bSize > 4096) {{
+      throw new Error(`Image ${{i}} (${{img.width}}x${{img.height}}) size ${{bSize}}B exceeds 4KB buffer`);
+    }}
+  }}
+}}
+console.log('clean-night-18-custom verified hardware-safe (0x64 indexed, <= 4096 bytes)');
+"""
+    v = subprocess.run(
+        ["node", "-e", verify_script],
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    if v.returncode != 0:
+        raise RuntimeError(
+            f"Hardware safety check failed for clean-night-18-custom: {v.stderr}"
+        )
+    print(v.stdout.strip())
+
+    win_dl = Path("/mnt/c/Users/Karoly/Downloads")
+    if win_dl.exists():
+        shutil.copy2(target, win_dl / "clean-night-18-custom.bin")
+        print(f"Copied clean-night-18-custom.bin to {win_dl}")
+
+    subprocess.run(["python3", str(ROOT / "scripts" / "gen_exact.py")], check=True)
+
 
 
 if __name__ == "__main__":

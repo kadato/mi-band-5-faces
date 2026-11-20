@@ -10,6 +10,7 @@ Run: python3 server.py [port]  (default 8903)
 
 import copy
 import json
+import shutil
 import subprocess
 import sys
 import time
@@ -139,6 +140,56 @@ def pack_bin():
     target = target_dir / "clean-night-18-custom.bin"
     if packed.exists():
         packed.replace(target)
+    # Hardware safety verification
+    verify_script = f"""
+const fs = require('fs');
+const {{ getAvailableModels, parseWatchFaceBin }} = require('./node_modules/watchface-js/dist/watchFaceBinTools/watchFaceBinParser.js');
+const mb5 = getAvailableModels().find(m => m.id === 'miband5');
+const buf = fs.readFileSync('{target}');
+const ab = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+const wf = parseWatchFaceBin(ab, mb5.fileType);
+const previewIdx = wf.parameters.Background && wf.parameters.Background.PreviewEN ? wf.parameters.Background.PreviewEN.ImageIndex : -1;
+
+if (wf.parameters.Time && wf.parameters.Time.DrawingOrder !== false) {{
+  throw new Error('Time.DrawingOrder must be false (Protobuf tag 11)');
+}}
+if (wf.parameters.Activity && wf.parameters.Activity.UnknownV7 !== 0) {{
+  throw new Error('Activity.UnknownV7 must be 0 (Protobuf tag 7)');
+}}
+if (wf.parameters.Time && wf.parameters.Time.Hours && wf.parameters.Time.Minutes) {{
+  if (wf.parameters.Time.Hours.Tens.ImageIndex === wf.parameters.Time.Minutes.Tens.ImageIndex) {{
+    throw new Error('Hours and Minutes must have distinct ImageIndex sets');
+  }}
+}}
+
+for (let i = 0; i < wf.images.length; i++) {{
+  const img = wf.images[i];
+  if (i !== 0 && i !== previewIdx) {{
+    if (img.pixelFormat !== 0x64) {{
+      throw new Error(`Image ${{i}} format 0x${{img.pixelFormat.toString(16)}} (expected 0x64 indexed colors)`);
+    }}
+    const bSize = 16 + 1024 + img.width * img.height;
+    if (bSize > 4096) {{
+      throw new Error(`Image ${{i}} (${{img.width}}x${{img.height}}) size ${{bSize}}B exceeds 4KB buffer`);
+    }}
+  }}
+}}
+"""
+    v = subprocess.run(
+        ["node", "-e", verify_script],
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    if v.returncode != 0:
+        raise RuntimeError(f"Hardware safety check failed: {v.stderr}")
+
+    win_dl = Path("/mnt/c/Users/Karoly/Downloads")
+    if win_dl.exists():
+        try:
+            shutil.copy2(target, win_dl / "clean-night-18-custom.bin")
+        except Exception:
+            pass
     return target.stat().st_size
 
 
@@ -222,6 +273,13 @@ class Handler(SimpleHTTPRequestHandler):
                     cur[k] = v
             layout, meta = build(cur)
             write_design(cur)
+            if meta.get("validationErrors"):
+                return self._json({
+                    "ok": False,
+                    "error": f"Mi Band 5 hardware validation failed: {'; '.join(meta['validationErrors'])}",
+                    "validationErrors": meta["validationErrors"],
+                    "meta": meta
+                }, 400)
             entry = refresh_faces_entry(layout, meta)
             try:
                 size = pack_bin()

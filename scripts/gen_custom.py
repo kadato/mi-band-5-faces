@@ -116,8 +116,6 @@ for i in range(10):
     glyph(str(i), 20, 26, 24, STEPC).save(out / f"{i + 22}.png")
 for idx in range(6):
     make_battery_icon(idx).save(out / f"{32 + idx}.png")
-        bb = d.textbbox((0, 0), txt, font=fnt)
-        tw = bb[2] - bb[0]
 for i, dd in enumerate(["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]):
     glyph(dd, WD_W, WD_H, 18, WD).save(out / f"{38 + i}.png")
 
