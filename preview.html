@@ -137,7 +137,7 @@ a{color:var(--accent)}
 <div class="row"><label>Battery Y <output id="o-battY">270</output></label><input type="range" id="d-battY" min="200" max="274" value="270"></div>
 <div class="row"><button class="btn primary" id="btn-rebuild" style="flex:1">Rebuild .bin</button></div>
 <div id="status"></div>
-<div class="row"><a id="bin-link" href="clean-night-18-custom.bin">Download clean-night-18-custom.bin</a></div>
+<div class="row"><a id="bin-link" href="bin/clean-night-18-custom.bin">Download clean-night-18-custom.bin</a></div>
 <p class="hint">Start the server with <code>python3 server.py 8903</code>, then open <code>http://127.0.0.1:8903/</code>. Edits rebuild automatically when the server runs. Without the server, values still preview but rebuild is disabled.</p>
 </div>
 </div>
@@ -390,7 +390,7 @@ if(!r.ok)throw new Error(j.error||("HTTP "+r.status));
 BUILD=j.build||Date.now();
 for(const k of Object.keys(exactCache))delete exactCache[k];
 if(j.layout&&typeof FACES!=="undefined"&&FACES.faces){FACES.faces["clean-night-18-custom"].layout=j.layout;if(j.meta)FACES.faces["clean-night-18-custom"].meta=j.meta}
-$("bin-link").href="clean-night-18-custom.bin?v="+BUILD;
+$("bin-link").href="bin/clean-night-18-custom.bin?v="+BUILD;
 let msg=j.binBytes>0?("Rebuilt .bin ("+Math.round(j.binBytes/1024)+" KB). The preview matches the band."):"Rebuilt PNGs, but .bin packaging failed: "+(j.packError||"wfjs error");
 if(j.meta&&j.meta.overflowPx>0)msg+=" Content overflows bottom by "+j.meta.overflowPx+"px. Move blocks up or decrease font sizes.";
 setStatus(msg,j.binBytes>0?"ok":"err");

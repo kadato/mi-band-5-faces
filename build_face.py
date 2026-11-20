@@ -158,7 +158,7 @@ def build(d):
         int(y["batt"]),
     )
 
-    out = ROOT / "clean-night-18-custom"
+    out = ROOT / "faces" / "clean-night-18-custom"
     out.mkdir(exist_ok=True)
     for p in out.glob("*.png"):
         p.unlink()

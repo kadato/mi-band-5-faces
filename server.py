@@ -99,11 +99,11 @@ def refresh_faces_entry(layout, meta):
         gap = 0
     files = {
         int(p.stem)
-        for p in (ROOT / "clean-night-18-custom").glob("*.png")
+        for p in (ROOT / "faces" / "clean-night-18-custom").glob("*.png")
         if p.stem.isdigit()
     }
     data["faces"]["clean-night-18-custom"] = {
-        "dir": "clean-night-18-custom",
+        "dir": "faces/clean-night-18-custom",
         "ids": sorted(ids),
         "layout": layout,
         "meta": meta,
@@ -115,12 +115,15 @@ def refresh_faces_entry(layout, meta):
 
 
 def pack_bin():
+    packed = ROOT / "clean-night-18-custom_packed.bin"
+    if packed.exists():
+        packed.unlink()
     r = subprocess.run(
         [
             "./node_modules/.bin/wfjs",
             "writeBin",
             "-i",
-            "clean-night-18-custom",
+            "faces/clean-night-18-custom",
             "-m",
             "miband5",
         ],
@@ -131,8 +134,9 @@ def pack_bin():
     )
     if r.returncode != 0:
         raise RuntimeError(f"wfjs failed: {r.stderr[-2000:]}")
-    packed = ROOT / "clean-night-18-custom_packed.bin"
-    target = ROOT / "clean-night-18-custom.bin"
+    target_dir = ROOT / "bin"
+    target_dir.mkdir(exist_ok=True)
+    target = target_dir / "clean-night-18-custom.bin"
     if packed.exists():
         packed.replace(target)
     return target.stat().st_size
