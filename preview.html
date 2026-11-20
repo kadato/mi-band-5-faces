@@ -90,7 +90,7 @@ a{color:var(--accent)}
 
 <div class="controls">
 <div class="panel"><h2><span class="n">1</span> Face + values</h2>
-<div class="row"><label>Face</label><select id="v-face"><option value="clean-night-18-custom">18 - custom (editable)</option><option value="clean-night-10-blue">10-blue</option><option value="clean-night-11-mono">11-mono</option><option value="clean-night-12-volt">12-volt</option><option value="clean-night-13-aqua">13-aqua</option><option value="clean-night-14-ember">14-ember</option><option value="clean-night-15-duo-frost">15-frost</option><option value="clean-night-16-duo-sky">16-sky</option><option value="clean-night-17-duo-deep">17-deep</option></select></div>
+<div class="row"><label>Face</label><select id="v-face"><option value="clean-night-18-custom">18 - custom (editable)</option><option value="clean-night-10-blue">10-blue</option><option value="clean-night-11-mono">11-mono</option><option value="clean-night-12-volt">12-volt</option><option value="clean-night-13-aqua">13-aqua</option><option value="clean-night-14-ember">14-ember</option><option value="clean-night-15-duo-frost">15-frost</option><option value="clean-night-16-duo-sky">16-sky</option><option value="clean-night-17-duo-deep">17-deep</option></select><button class="btn" id="btn-copy-variant" style="padding:4px 8px;font-size:11px;margin-left:6px;display:none" title="Copy variant settings into custom face to edit">Edit this in custom</button></div>
 <div class="row"><label>Time</label><input type="text" id="v-hh" value="12" style="width:44px"><span>:</span><input type="text" id="v-mm" value="45" style="width:44px"><button class="btn" id="btn-now" style="padding:5px 10px">Now</button></div>
 <div class="row"><label>Date + weekday</label><input type="text" id="v-date" value="11/17" style="width:64px"><select id="v-day"><option>MON</option><option>TUE</option><option selected>WED</option><option>THU</option><option>FRI</option><option>SAT</option><option>SUN</option></select></div>
 <div class="row"><label>Steps</label><input type="number" id="v-steps" value="8432" min="0"></div>
@@ -194,15 +194,60 @@ body.appendChild(groupCard(o))});
 if(cat.goalbar){const r=document.createElement("div");r.className="row";r.innerHTML=`<label>Goal bar</label><input type="checkbox" id="s-bar" title="Steps progress line under the steps number">`;body.appendChild(r)}
 det.appendChild(body);gdiv.appendChild(det)});
 const PRESETS={"10-blue":{bg:"#24283b",hh:"#c0caf5",mm:"#c0caf5",wd:"#7aa2f7",dt:"#7aa2f7",st:"#7aa2f7"},
-"11-mono":{bg:"#000000",hh:"#ffffff",mm:"#ffffff",wd:"#ffffff",dt:"#ffffff",st:"#ffffff"},
+"11-mono":{bg:"#24283b",hh:"#ffffff",mm:"#c0caf5",wd:"#c0caf5",dt:"#c0caf5",st:"#ffffff"},
 "12-volt":{bg:"#24283b",hh:"#FAFF00",mm:"#FAFF00",wd:"#7aa2f7",dt:"#7aa2f7",st:"#9ece6a"},
 "13-aqua":{bg:"#24283b",hh:"#7dcfff",mm:"#7dcfff",wd:"#565f89",dt:"#7dcfff",st:"#7dcfff"},
 "14-ember":{bg:"#24283b",hh:"#ff9e64",mm:"#ff9e64",wd:"#e0af68",dt:"#e0af68",st:"#9ece6a"},
 "15-frost":{bg:"#24283b",hh:"#ffffff",mm:"#7aa2f7",wd:"#7aa2f7",dt:"#7aa2f7",st:"#7aa2f7"},
 "16-sky":{bg:"#24283b",hh:"#c0caf5",mm:"#7dcfff",wd:"#7aa2f7",dt:"#7aa2f7",st:"#7aa2f7"},
 "17-deep":{bg:"#24283b",hh:"#7aa2f7",mm:"#c0caf5",wd:"#7aa2f7",dt:"#7aa2f7",st:"#7aa2f7"}};
+const VARIANT_MAP={
+"clean-night-10-blue":"10-blue",
+"clean-night-11-mono":"11-mono",
+"clean-night-12-volt":"12-volt",
+"clean-night-13-aqua":"13-aqua",
+"clean-night-14-ember":"14-ember",
+"clean-night-15-duo-frost":"15-frost",
+"clean-night-16-duo-sky":"16-sky",
+"clean-night-17-duo-deep":"17-deep"
+};
+function applyVariantToCustom(key){
+const k=VARIANT_MAP[key]||key;
+const p=PRESETS[k];
+if(!p)return;
+$("v-face").value="clean-night-18-custom";
+$("d-bg").value=p.bg;
+$("d-font").value="Departure Mono";
+$("d-layout").value="stack";
+$("d-top").value="wd-dt";
+$("d-gap").value=-25;
+$("d-topY").value=6;
+$("d-timeY").value=62;
+$("d-lowY").value=234;
+$("d-battY").value=264;
+$("s-bar").checked=false;
+const core=["hh","mm","wd","dt","st"];
+G.forEach(g=>{
+const isCore=core.includes(g.id);
+const chk=$("s-"+g.id);
+if(chk)chk.checked=isCore;
+const f=$("f-"+g.id);
+if(f)f.value="";
+const sp=$("p-"+g.id);
+if(sp)sp.value=(g.id==="wd"?2:0);
+});
+$("z-hh").value=78;
+$("z-mm").value=78;
+$("z-wd").value=18;
+$("z-dt").value=22;
+$("z-st").value=24;
+["hh","mm","wd","dt","st"].forEach(gid=>{if(p[gid])$("c-"+gid).value=p[gid]});
+syncLabels();
+scheduleRebuild();
+}
 const holder=$("presets");
-Object.keys(PRESETS).forEach(n=>{const b=document.createElement("button");b.textContent=n;b.onclick=()=>{const p=PRESETS[n];$("d-bg").value=p.bg;["hh","mm","wd","dt","st"].forEach(k=>{$("c-"+k).value=p[k]});syncLabels();scheduleRebuild()};holder.appendChild(b)});
+Object.keys(PRESETS).forEach(n=>{const b=document.createElement("button");b.textContent=n;b.onclick=()=>applyVariantToCustom(n);holder.appendChild(b)});
+$("btn-copy-variant").onclick=()=>applyVariantToCustom($("v-face").value);
 /* ---------- exact renderer: draws the built .bin PNGs ---------- */
 const exactCv=$("bandExact"),ectx=exactCv.getContext("2d");
 let BUILD=0;const exactCache={};
@@ -377,6 +422,7 @@ $("battval").textContent=$("v-batt").value;
 const V=vals();
 $("calc").textContent=`${V.dist.toFixed(2)} ${V.unit}, ${Math.round(V.cal)} kcal, ${V.pct}% of goal`;
 const custom=$("v-face").value==="clean-night-18-custom";
+$("btn-copy-variant").style.display=custom?"none":"inline-block";
 document.querySelectorAll("#groups input,#groups select,.controls-wide input,.controls-wide select,#btn-rebuild").forEach(el=>{if(el.id)el.disabled=!custom});
 CATS.forEach((cat,ci)=>{try{const on=cat.ids.filter(id=>$("s-"+id).checked).length;const el=$("count-"+ci);if(el)el.textContent=on+"/"+cat.ids.length+" on"}catch(e){}});
 }

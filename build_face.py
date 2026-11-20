@@ -67,21 +67,29 @@ def text_img(s, size, color, fname, pad=2):
 
 
 def make_battery_icon(level):
-    img = Image.new("RGBA", (22, 22), (0, 0, 0, 0))
+    w, h, border = 44, 22, 2
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     if level >= 2:
         return img
     hex_col = RED if level == 0 else ORANGE
     col = ImageColor.getcolor(hex_col, "RGBA")
     d = ImageDraw.Draw(img)
-    d.rectangle([0, 0, 21, 21], outline=col, width=1)
-    img.putpixel((0, 0), (0, 0, 0, 0))
-    img.putpixel((21, 0), (0, 0, 0, 0))
-    img.putpixel((0, 21), (0, 0, 0, 0))
-    img.putpixel((21, 21), (0, 0, 0, 0))
 
-    L = ["100", "100", "100", "100", "100", "100", "100", "100", "100", "111"]
-    O = ["0110", "1001", "1001", "1001", "1001", "1001", "1001", "1001", "1001", "0110"]
-    W = ["10001", "10001", "10001", "10001", "10001", "10101", "10101", "10101", "11011", "01010"]
+    for b in range(border):
+        d.rectangle([b, b, w - 1 - b, h - 1 - b], outline=col, width=1)
+
+    for pt in [(0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)]:
+        img.putpixel(pt, (0, 0, 0, 0))
+
+    L = ["1100", "1100", "1100", "1100", "1100", "1100", "1100", "1100", "1111", "1111"]
+    O = ["011110", "110011", "110011", "110011", "110011", "110011", "110011", "110011", "110011", "011110"]
+    W = ["11000011", "11000011", "11000011", "11000011", "11000011", "11011011", "11011011", "01111110", "01100110", "00100100"]
+
+    spacing = 3
+    tw = len(L[0]) + spacing + len(O[0]) + spacing + len(W[0])
+    th = 10
+    start_x = (w - tw) // 2
+    start_y = (h - th) // 2
 
     def draw_glyph(glyph_rows, gx, gy):
         for r, row in enumerate(glyph_rows):
@@ -89,9 +97,12 @@ def make_battery_icon(level):
                 if bit == "1":
                     img.putpixel((gx + c, gy + r), col)
 
-    draw_glyph(L, 4, 6)
-    draw_glyph(O, 8, 6)
-    draw_glyph(W, 13, 6)
+    cx = start_x
+    draw_glyph(L, cx, start_y)
+    cx += len(L[0]) + spacing
+    draw_glyph(O, cx, start_y)
+    cx += len(O[0]) + spacing
+    draw_glyph(W, cx, start_y)
     return img
 
 
@@ -692,7 +703,7 @@ def build(d):
             continue
 
     # ---- battery low-only icon ----
-    BATT_W, BATT_H = 22, 22
+    BATT_W, BATT_H = 44, 22
     batt_x = (W - BATT_W) // 2
     for idx in range(6):
         make_battery_icon(idx).save(out / f"{alloc()}.png")
