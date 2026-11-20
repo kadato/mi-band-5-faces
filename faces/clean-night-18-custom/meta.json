@@ -1,1 +1,31 @@
-{"lowRows": {"st": {"y": 234, "h": 26, "base": 29, "spacing": 0}}, "status": {}, "goalBar": null, "hil": null, "bounds": {"timeBottom": 217, "lowBottom": 260, "battBottom": 286}, "overflowPx": 0}
+{
+  "lowRows": {
+    "st": {
+      "y": 252,
+      "h": 25,
+      "base": 39,
+      "spacing": 0
+    }
+  },
+  "status": {},
+  "goalBar": null,
+  "hil": null,
+  "preview_idx": 55,
+  "bounds": {
+    "topTop": 12,
+    "topBottom": 55,
+    "timeTop": 72,
+    "timeBottom": 206,
+    "timeBW": 44,
+    "timeBH": 64,
+    "timeBW2": 44,
+    "timeBH2": 64,
+    "lowTop": 252,
+    "lowBottom": 277,
+    "battTop": 224,
+    "battBottom": 246
+  },
+  "overflowPx": 0,
+  "validationErrors": [],
+  "valid": true
+}

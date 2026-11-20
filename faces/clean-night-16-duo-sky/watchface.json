@@ -4,84 +4,101 @@
       "X": 0,
       "Y": 0,
       "ImageIndex": 0
+    },
+    "PreviewEN": {
+      "X": 0,
+      "Y": 0,
+      "ImageIndex": 55
+    },
+    "PreviewCN": {
+      "X": 0,
+      "Y": 0,
+      "ImageIndex": 55
+    },
+    "PreviewCN2": {
+      "X": 0,
+      "Y": 0,
+      "ImageIndex": 55
     }
   },
   "Time": {
     "Hours": {
       "Tens": {
-        "X": 13,
-        "Y": 62,
+        "X": 17,
+        "Y": 72,
         "ImageIndex": 1,
         "ImagesCount": 10
       },
       "Ones": {
-        "X": 53,
-        "Y": 62,
+        "X": 65,
+        "Y": 72,
         "ImageIndex": 1,
         "ImagesCount": 10
       }
     },
     "Minutes": {
       "Tens": {
-        "X": 13,
-        "Y": 132,
-        "ImageIndex": 45,
+        "X": 17,
+        "Y": 150,
+        "ImageIndex": 11,
         "ImagesCount": 10
       },
       "Ones": {
-        "X": 53,
-        "Y": 132,
-        "ImageIndex": 45,
+        "X": 65,
+        "Y": 150,
+        "ImageIndex": 11,
         "ImagesCount": 10
       }
-    }
+    },
+    "DrawingOrder": false
+  },
+  "Activity": {
+    "Steps": {
+      "Number": {
+        "TopLeftX": 5,
+        "TopLeftY": 252,
+        "BottomRightX": 121,
+        "BottomRightY": 280,
+        "Alignment": "Center",
+        "SpacingX": 1,
+        "SpacingY": 0,
+        "ImageIndex": 32,
+        "ImagesCount": 10
+      }
+    },
+    "UnknownV7": 0
   },
   "Date": {
     "MonthAndDayAndYear": {
       "OneLine": {
         "Number": {
           "TopLeftX": 5,
-          "TopLeftY": 28,
+          "TopLeftY": 36,
           "BottomRightX": 121,
-          "BottomRightY": 52,
+          "BottomRightY": 60,
           "Alignment": "Center",
           "SpacingX": 1,
           "SpacingY": 0,
-          "ImageIndex": 11,
+          "ImageIndex": 21,
           "ImagesCount": 10
         },
-        "DelimiterImageIndex": 21
+        "DelimiterImageIndex": 31
       },
       "TwoDigitsMonth": true,
       "TwoDigitsDay": true
     },
     "ENWeekDays": {
       "X": 41,
-      "Y": 6,
-      "ImageIndex": 38,
+      "Y": 12,
+      "ImageIndex": 48,
       "ImagesCount": 7
-    }
-  },
-  "Activity": {
-    "Steps": {
-      "Number": {
-        "TopLeftX": 5,
-        "TopLeftY": 234,
-        "BottomRightX": 121,
-        "BottomRightY": 260,
-        "Alignment": "Center",
-        "SpacingX": 1,
-        "SpacingY": 0,
-        "ImageIndex": 22,
-        "ImagesCount": 10
-      }
     }
   },
   "Battery": {
     "BatteryIcon": {
       "X": 41,
-      "Y": 264,
-      "ImageIndex": 32,
+      "Y": 224,
+      "ImageIndex": 42,
       "ImagesCount": 6
     }
   }
